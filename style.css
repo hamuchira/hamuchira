@@ -1,1 +1,17 @@
-body { font-family: sans-serif; background: #fff5f8; color: #333; text-align: center; }
+body {
+  font-family: sans-serif;
+  background-color: #fff5f7;
+  padding: 20px;
+}
+h1 {
+  font-size: 2em;
+}
+#tabs button {
+  margin: 5px;
+}
+.tab {
+  display: none;
+}
+.tab.active {
+  display: block;
+}

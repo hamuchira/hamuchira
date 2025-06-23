@@ -1,1 +1,34 @@
-<!DOCTYPE html><html><head><title>ハムチラ</title><link rel='stylesheet' href='style.css'></head><body><h1>こんにちは 🐹</h1><script src='main.js'></script></body></html>
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ハムチラWebツール</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>ハムチラWebツール 🐹</h1>
+  <div id="tabs">
+    <button onclick="showTab('list')">毛色一覧</button>
+    <button onclick="showTab('search')">交配検索</button>
+  </div>
+  <div id="content">
+    <div id="listTab" class="tab active">
+      <h2>ジャンガリアンハムスターの毛色一覧</h2>
+      <ul id="colorList"></ul>
+    </div>
+    <div id="searchTab" class="tab">
+      <h2>交配組み合わせ検索</h2>
+      <div>
+        <label>親1:</label>
+        <select id="parent1"></select>
+        <label>親2:</label>
+        <select id="parent2"></select>
+        <button onclick="searchCombinations()">検索</button>
+      </div>
+      <div id="results"></div>
+    </div>
+  </div>
+  <script src="main.js"></script>
+</body>
+</html>
