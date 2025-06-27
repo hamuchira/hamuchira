@@ -45,6 +45,25 @@
             color: #d2691e;
         }
 
+        .alert {
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+
+        .alert-danger {
+            background: #fff5f5;
+            color: #dc3545;
+            border: 2px solid #f5c6cb;
+        }
+
+        .alert-warning {
+            background: #fff9e6;
+            color: #856404;
+            border: 2px solid #ffeaa7;
+        }
+
         .tabs {
             display: flex;
             flex-wrap: wrap;
@@ -160,7 +179,7 @@
             border-radius: 10px;
             padding: 15px;
             margin: 10px 0;
-            max-height: 200px;
+            max-height: 300px;
             overflow-y: auto;
         }
 
@@ -213,37 +232,10 @@
             color: #721c24;
         }
 
-        .lethal-warning {
-            color: #dc3545;
-            font-weight: bold;
-            font-size: 0.9rem;
-        }
-
-        .reverse-search {
-            background: linear-gradient(135deg, #fff0f5 0%, #ffe4e6 100%);
-            border-radius: 15px;
-            padding: 20px;
-        }
-
-        .parent-combo {
-            background: white;
-            border-radius: 10px;
-            padding: 15px;
-            margin: 10px 0;
-            border-left: 5px solid #f8d7da;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .parent-combo strong {
-            color: #6b4c85;
-            display: block;
-            margin-bottom: 8px;
-        }
-
-        .genotype-detail {
-            font-size: 0.9rem;
-            color: #666;
-            font-style: italic;
+        .result-item.health-risk {
+            border-left-color: #ffc107;
+            background: #fff9e6;
+            color: #856404;
         }
 
         .grid {
@@ -253,27 +245,9 @@
             margin-bottom: 20px;
         }
 
-        @media (max-width: 768px) {
-            .container {
-                padding: 10px;
-            }
-            
-            .tabs {
-                flex-direction: column;
-            }
-            
-            .tab-button {
-                width: 100%;
-            }
-            
-            .grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
         .color-chart {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 15px;
             margin: 20px 0;
         }
@@ -300,6 +274,24 @@
             border-radius: 10px;
             padding: 15px;
             margin: 10px 0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .tab-button {
+                width: 100%;
+            }
+            
+            .grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -335,6 +327,7 @@
         <div id="breeding-search" class="tab-content">
             <div class="section">
                 <h3>👨‍👩‍👧‍👦 親の選択</h3>
+                <div id="warnings-display"></div>
                 <div class="grid">
                     <div>
                         <h4>🐹 親A</h4>
@@ -347,15 +340,16 @@
                         <div class="form-group">
                             <label>目の色:</label>
                             <select id="parentA-eye">
-                                <option value="黒">黒目</option>
-                                <option value="赤">赤目</option>
+                                <option value="ee">黒目 (ee)</option>
+                                <option value="Ee">ブドウ目/ルビーアイ (Ee)</option>
+                                <option value="EE">赤目 (EE)</option>
                             </select>
                         </div>
                         <div class="form-group">
                             <label>パイド:</label>
                             <select id="parentA-pied">
-                                <option value="なし">なし</option>
-                                <option value="あり">あり</option>
+                                <option value="pp">なし (pp)</option>
+                                <option value="Pp">あり (Pp)</option>
                             </select>
                         </div>
                     </div>
@@ -370,15 +364,16 @@
                         <div class="form-group">
                             <label>目の色:</label>
                             <select id="parentB-eye">
-                                <option value="黒">黒目</option>
-                                <option value="赤">赤目</option>
+                                <option value="ee">黒目 (ee)</option>
+                                <option value="Ee">ブドウ目/ルビーアイ (Ee)</option>
+                                <option value="EE">赤目 (EE)</option>
                             </select>
                         </div>
                         <div class="form-group">
                             <label>パイド:</label>
                             <select id="parentB-pied">
-                                <option value="なし">なし</option>
-                                <option value="あり">あり</option>
+                                <option value="pp">なし (pp)</option>
+                                <option value="Pp">あり (Pp)</option>
                             </select>
                         </div>
                     </div>
@@ -415,7 +410,7 @@
 
         <!-- 逆引き検索タブ -->
         <div id="reverse-search" class="tab-content">
-            <div class="section reverse-search">
+            <div class="section">
                 <h3>🔄 赤ちゃんの毛色から親の組み合わせを逆引き</h3>
                 <div class="form-group">
                     <label>欲しい赤ちゃんの毛色:</label>
@@ -432,32 +427,83 @@
     </div>
 
     <script>
-        // 遺伝子型データベース
-        const genotypeData = {
-            'ノーマル': ['BBMM yyww', 'BbMM yyww', 'BBMm yyww', 'BbMm yyww'],
-            'ブルーサファイア': ['bbMM yyww', 'bbMm yyww'],
-            'モカブラウン': ['BBmm yyww', 'Bbmm yyww'],
-            'ムーングレー': ['bbmm yyww'],
-            'クリーミーサファイア': ['bbmm yyww'],
-            'パール': ['BBMM yyWw', 'BBMm yyWw', 'BbMM yyWw', 'BbMm yyWw'],
-            'サファイアパール': ['bbMM yyWw', 'bbMm yyWw'],
-            'ホワイトモカ': ['BBmm yyWw', 'Bbmm yyWw'],
-            'ホワイトムーン': ['bbmm yyWw'],
-            'クリーミーライン': ['BBMM YyWw', 'BbMM YyWw', 'BBMm YyWw', 'BbMm YyWw'],
-            'クリーミーラインムーン': ['bbmm YyWw'],
-            'ミルクティー': ['Bbmm Yyww', 'BBmm Yyww'],
-            'イエロームーン': ['bbmm Yyww'],
-            'プディング': ['BBMM Yyww', 'BbMM Yyww', 'BBMm Yyww', 'BbMm Yyww'],
-            'サファイアプディング': ['bbMM Yyww', 'bbMm Yyww'],
-            'サファイアクリーミーライン': ['bbMM YyWw', 'bbMm YyWw']
+        // 遺伝子型データベース（簡潔版）
+        const genotypeDB = {
+            // イエロームーン
+            "bbmmYywwAA": "イエロームーン", "bbmmYywwAa": "イエロームーン", "bbmmYyww--": "イエロームーン",
+            // クリーミーサファイア・ムーングレー
+            "bbmmyywwAA": "クリーミーサファイア・ムーングレー", "bbmmyywwAa": "クリーミーサファイア・ムーングレー", "bbmmyyww--": "クリーミーサファイア・ムーングレー",
+            // ホワイトムーン
+            "bbmmyyWwAA": "ホワイトムーン", "bbmmyyWwAa": "ホワイトムーン", "bbmmyyWw--": "ホワイトムーン",
+            // クリーミーラインムーン
+            "bbmmYyWwAA": "クリーミーラインムーン", "bbmmYyWwAa": "クリーミーラインムーン", "bbmmYyWw--": "クリーミーラインムーン",
+            // ノーマル
+            "BBMMyywwAA": "ノーマル", "BBMMyywwAa": "ノーマル", "BBMMyyww--": "ノーマル",
+            "BbMMyywwAA": "ノーマル", "BbMMyywwAa": "ノーマル", "BbMMyyww--": "ノーマル",
+            "BbMmyywwAA": "ノーマル", "BbMmyywwAa": "ノーマル", "BbMmyyww--": "ノーマル",
+            "BBMmyywwAA": "ノーマル", "BBMmyywwAa": "ノーマル", "BBMmyyww--": "ノーマル",
+            // ブラックジャンガリアン（ノーマルブラック）
+            "BBMMyywwaa": "ブラックジャンガリアン（ノーマルブラック）", "BbMMyywwaa": "ブラックジャンガリアン（ノーマルブラック）", "BbMmyywwaa": "ブラックジャンガリアン（ノーマルブラック）",
+            // パール
+            "BBMMyyWwAA": "パール", "BBMMyyWwAa": "パール", "BBMMyyWw--": "パール",
+            "BbMMyyWwAA": "パール", "BbMMyyWwAa": "パール", "BbMMyyWw--": "パール",
+            "BbMmyyWwAA": "パール", "BbMmyyWwAa": "パール", "BbMmyyWw--": "パール",
+            "BBMmyyWwAA": "パール", "BBMmyyWwAa": "パール", "BBMmyyWw--": "パール",
+            // プディング
+            "BBMMYywwAA": "プディング", "BBMMYywwAa": "プディング", "BBMMYyww--": "プディング",
+            "BbMMYywwAA": "プディング", "BbMMYywwAa": "プディング", "BbMMYyww--": "プディング",
+            "BbMmYywwAA": "プディング", "BbMmYywwAa": "プディング", "BbMmYyww--": "プディング",
+            "BBMmYywwAA": "プディング", "BBMmYywwAa": "プディング", "BBMmYyww--": "プディング",
+            // クリーミーライン
+            "BBMMYyWwAA": "クリーミーライン", "BBMMYyWwAa": "クリーミーライン", "BBMMYyWw--": "クリーミーライン",
+            "BbMMYyWwAA": "クリーミーライン", "BbMMYyWwAa": "クリーミーライン", "BbMMYyWw--": "クリーミーライン",
+            "BBMmYyWwAA": "クリーミーライン", "BBMmYyWwAa": "クリーミーライン", "BBMmYyWw--": "クリーミーライン",
+            "BbMmYyWwAA": "クリーミーライン", "BbMmYyWwAa": "クリーミーライン", "BbMmYyWw--": "クリーミーライン",
+            // サファイアパール
+            "bbMMyyWwAA": "サファイアパール", "bbMMyyWwAa": "サファイアパール", "bbMMyyWw--": "サファイアパール",
+            "bbMmyyWwAA": "サファイアパール", "bbMmyyWwAa": "サファイアパール", "bbMmyyWw--": "サファイアパール",
+            // サファイアプディング
+            "bbMMYywwAA": "サファイアプディング", "bbMMYywwAa": "サファイアプディング", "bbMMYyww--": "サファイアプディング",
+            "bbMmYywwAA": "サファイアプディング", "bbMmYywwAa": "サファイアプディング", "bbMmYyww--": "サファイアプディング",
+            // ブルーサファイア
+            "bbMMyywwAA": "ブルーサファイア", "bbMMyywwAa": "ブルーサファイア", "bbMMyyww--": "ブルーサファイア",
+            "bbMmyywwAA": "ブルーサファイア", "bbMmyywwAa": "ブルーサファイア", "bbMmyyww--": "ブルーサファイア",
+            // ロシアンブルー（ブルサファブラック）
+            "bbMMyywwaa": "ロシアンブルー（ブルサファブラック）", "bbMmyywwaa": "ロシアンブルー（ブルサファブラック）",
+            // サファイアクリーミーライン
+            "bbMMYyWwAA": "サファイアクリーミーライン", "bbMMYyWwAa": "サファイアクリーミーライン", "bbMMYyWw--": "サファイアクリーミーライン",
+            "bbMmYyWwAA": "サファイアクリーミーライン", "bbMmYyWwAa": "サファイアクリーミーライン", "bbMmYyWw--": "サファイアクリーミーライン",
+            // ホワイトモカ
+            "BBmmyyWwAA": "ホワイトモカ", "BBmmyyWwAa": "ホワイトモカ", "BBmmyyWw--": "ホワイトモカ",
+            "BbmmyyWwAA": "ホワイトモカ", "BbmmyyWwAa": "ホワイトモカ", "BbmmyyWw--": "ホワイトモカ",
+            // ミルクティー
+            "BBmmYywwAA": "ミルクティー", "BBmmYywwAa": "ミルクティー", "BBmmYyww--": "ミルクティー",
+            "BbmmYywwAA": "ミルクティー", "BbmmYywwAa": "ミルクティー", "BbmmYyww--": "ミルクティー",
+            // モカブラウン
+            "BBmmyywwAA": "モカブラウン", "BBmmyywwAa": "モカブラウン", "BBmmyyww--": "モカブラウン",
+            "BbmmyywwAA": "モカブラウン", "BbmmyywwAa": "モカブラウン", "Bbmmyyww--": "モカブラウン",
+            // クリーミーラインモカ
+            "BBmmYyWwAA": "クリーミーラインモカ", "BBmmYyWwAa": "クリーミーラインモカ", "BBmmYyWw--": "クリーミーラインモカ",
+            "BbmmYyWwAA": "クリーミーラインモカ", "BbmmYyWwAa": "クリーミーラインモカ", "BbmmYyWw--": "クリーミーラインモカ"
         };
 
-        // 遺伝子型から毛色を逆引きするマップ
-        const genotypeToColor = {};
-        Object.keys(genotypeData).forEach(color => {
-            genotypeData[color].forEach(genotype => {
-                genotypeToColor[genotype] = color;
-            });
+        // 指定された順序で毛色を表示
+        const orderedColors = [
+            'ノーマル', 'パール', 'プディング', 'クリーミーライン', 'ブルーサファイア',
+            'サファイアパール', 'サファイアプディング', 'サファイアクリーミーライン',
+            'クリーミーサファイア・ムーングレー', 'クリーミーラインムーン', 'ホワイトムーン',
+            'イエロームーン', 'モカブラウン', 'ホワイトモカ', 'クリーミーラインモカ',
+            'ミルクティー', 'ブラックジャンガリアン（ノーマルブラック）', 'ロシアンブルー（ブルサファブラック）'
+        ];
+
+        // 毛色別の遺伝子型データベース作成
+        const colorToGenotypes = {};
+        Object.keys(genotypeDB).forEach(genotype => {
+            const coatName = genotypeDB[genotype];
+            if (!colorToGenotypes[coatName]) {
+                colorToGenotypes[coatName] = [];
+            }
+            colorToGenotypes[coatName].push(genotype);
         });
 
         let selectedGenotypeA = null;
@@ -472,14 +518,15 @@
 
         // 色の選択肢を設定
         function populateColorOptions() {
-            const colors = Object.keys(genotypeData);
             const selects = ['parentA-color', 'parentB-color', 'target-color'];
             
             selects.forEach(selectId => {
                 const select = document.getElementById(selectId);
                 select.innerHTML = '<option value="">選択してください</option>';
-                colors.forEach(color => {
-                    select.innerHTML += `<option value="${color}">${color}</option>`;
+                orderedColors.forEach(color => {
+                    if (colorToGenotypes[color]) {
+                        select.innerHTML += `<option value="${color}">${color}</option>`;
+                    }
                 });
             });
         }
@@ -489,42 +536,113 @@
             const chartDiv = document.getElementById('colorChart');
             chartDiv.innerHTML = '';
             
-            Object.keys(genotypeData).forEach(color => {
-                const colorDiv = document.createElement('div');
-                colorDiv.className = 'color-item';
-                colorDiv.innerHTML = `
-                    <div class="color-name">${color}</div>
-                    <div class="genotype-detail">
-                        ${genotypeData[color].join('<br>')}
-                    </div>
-                `;
-                chartDiv.appendChild(colorDiv);
+            orderedColors.forEach(color => {
+                if (colorToGenotypes[color]) {
+                    const colorDiv = document.createElement('div');
+                    colorDiv.className = 'color-item';
+                    
+                    const genotypes = colorToGenotypes[color];
+                    const displayGenotypes = genotypes.slice(0, 3);
+                    const moreText = genotypes.length > 3 ? ` など${genotypes.length}種類` : '';
+                    
+                    colorDiv.innerHTML = `
+                        <div class="color-name">${color}</div>
+                        <div style="font-size: 0.75rem; color: #666; margin-top: 10px; line-height: 1.4;">
+                            ${displayGenotypes.join('<br>')}${moreText}
+                        </div>
+                    `;
+                    chartDiv.appendChild(colorDiv);
+                }
             });
         }
 
         // イベントリスナー設定
         function setupEventListeners() {
             ['parentA-color', 'parentA-eye', 'parentA-pied'].forEach(id => {
-                document.getElementById(id).addEventListener('change', () => updateGenotypes('A'));
+                document.getElementById(id).addEventListener('change', () => {
+                    updateGenotypes('A');
+                    checkWarnings();
+                });
             });
             
             ['parentB-color', 'parentB-eye', 'parentB-pied'].forEach(id => {
-                document.getElementById(id).addEventListener('change', () => updateGenotypes('B'));
+                document.getElementById(id).addEventListener('change', () => {
+                    updateGenotypes('B');
+                    checkWarnings();
+                });
             });
+        }
+
+        // 警告チェック
+        function checkWarnings() {
+            const colorA = document.getElementById('parentA-color').value;
+            const colorB = document.getElementById('parentB-color').value;
+            const piedA = document.getElementById('parentA-pied').value;
+            const piedB = document.getElementById('parentB-pied').value;
+
+            const warningsDiv = document.getElementById('warnings-display');
+            warningsDiv.innerHTML = '';
+
+            if (!colorA || !colorB) return;
+
+            const warnings = [];
+
+            // 致死遺伝子チェック (WW, PP)
+            if (canProduceLethal(colorA, colorB) || (piedA === 'Pp' && piedB === 'Pp')) {
+                warnings.push({
+                    type: 'danger',
+                    message: '⚠️ この組み合わせでは、致死遺伝子が発現する可能性があります'
+                });
+            }
+
+            // 健康リスクチェック (YY)
+            if (canProduceHealthRisk(colorA, colorB)) {
+                warnings.push({
+                    type: 'warning',
+                    message: '⚠️ この組み合わせでは、健康上のリスクを持つ可能性があります'
+                });
+            }
+
+            warnings.forEach(warning => {
+                const alertDiv = document.createElement('div');
+                alertDiv.className = `alert alert-${warning.type}`;
+                alertDiv.textContent = warning.message;
+                warningsDiv.appendChild(alertDiv);
+            });
+        }
+
+        // 致死遺伝子発生可能性チェック
+        function canProduceLethal(colorA, colorB) {
+            const genotypesA = colorToGenotypes[colorA] || [];
+            const genotypesB = colorToGenotypes[colorB] || [];
+            
+            const hasWA = genotypesA.some(g => g.includes('Ww'));
+            const hasWB = genotypesB.some(g => g.includes('Ww'));
+            
+            return hasWA && hasWB;
+        }
+
+        // 健康リスクチェック
+        function canProduceHealthRisk(colorA, colorB) {
+            const genotypesA = colorToGenotypes[colorA] || [];
+            const genotypesB = colorToGenotypes[colorB] || [];
+            
+            const hasYA = genotypesA.some(g => g.includes('Yy'));
+            const hasYB = genotypesB.some(g => g.includes('Yy'));
+            
+            return hasYA && hasYB;
         }
 
         // 遺伝子型表示を更新
         function updateGenotypes(parent) {
             const color = document.getElementById(`parent${parent}-color`).value;
-            const eye = document.getElementById(`parent${parent}-eye`).value;
-            const pied = document.getElementById(`parent${parent}-pied`).value;
             
             if (!color) {
                 document.getElementById(`genotypeDisplay${parent}`).style.display = 'none';
                 return;
             }
 
-            const genotypes = genotypeData[color] || [];
+            const genotypes = colorToGenotypes[color] || [];
             const displayDiv = document.getElementById(`genotypeDisplay${parent}`);
             const genotypesDiv = document.getElementById(`genotypes${parent}`);
             
@@ -543,7 +661,6 @@
 
         // 遺伝子型選択
         function selectGenotype(parent, genotype, element) {
-            // 同じ親の他の選択を解除
             const parentDiv = document.getElementById(`genotypes${parent}`);
             parentDiv.querySelectorAll('.genotype-item').forEach(item => {
                 item.classList.remove('selected');
@@ -558,10 +675,14 @@
             }
         }
 
-        // 交配シミュレーション
+        // 交配シミュレーション（簡素化版）
         function simulateBreeding() {
             const colorA = document.getElementById('parentA-color').value;
             const colorB = document.getElementById('parentB-color').value;
+            const eyeA = document.getElementById('parentA-eye').value;
+            const eyeB = document.getElementById('parentB-eye').value;
+            const piedA = document.getElementById('parentA-pied').value;
+            const piedB = document.getElementById('parentB-pied').value;
             const mode = document.querySelector('input[name="simulation-mode"]:checked').value;
             
             if (!colorA || !colorB) {
@@ -569,63 +690,229 @@
                 return;
             }
 
-            let genotypesA, genotypesB;
-            
+            let results;
+
             if (mode === 'single') {
                 if (!selectedGenotypeA || !selectedGenotypeB) {
                     showError('指定した遺伝子型ペアモードでは、両方の親の遺伝子型を選択してください。');
                     return;
                 }
-                genotypesA = [selectedGenotypeA];
-                genotypesB = [selectedGenotypeB];
+                // 代表的な1つのペアで計算
+                results = calculateSimpleCross(selectedGenotypeA, selectedGenotypeB, eyeA, eyeB, piedA, piedB);
             } else {
-                genotypesA = genotypeData[colorA];
-                genotypesB = genotypeData[colorB];
+                // 代表的な遺伝子型で計算（最初の1つずつ）
+                const genotypesA = colorToGenotypes[colorA];
+                const genotypesB = colorToGenotypes[colorB];
+                
+                if (!genotypesA || !genotypesB || genotypesA.length === 0 || genotypesB.length === 0) {
+                    showError('選択された毛色の遺伝子型データが見つかりません。');
+                    return;
+                }
+                
+                // 代表的な遺伝子型を使用（最初のもの）
+                results = calculateSimpleCross(genotypesA[0], genotypesB[0], eyeA, eyeB, piedA, piedB);
             }
 
-            const results = calculateOffspring(genotypesA, genotypesB);
             displayBreedingResults(results);
         }
 
+        // シンプルな交配計算
+        function calculateSimpleCross(genotypeA, genotypeB, eyeA, eyeB, piedA, piedB) {
+            console.log("Crossing:", genotypeA, "x", genotypeB);
+            
+            const gA = parseGenotype(genotypeA);
+            const gB = parseGenotype(genotypeB);
+            
+            if (!gA.B.length || !gB.B.length) {
+                console.error("Failed to parse genotypes");
+                return {};
+            }
+
+            const results = {};
+            let totalCount = 0;
+
+            // 基本的なメンデルの法則で計算
+            const eyeGamesA = eyeA === 'EE' ? ['E', 'E'] : eyeA === 'Ee' ? ['E', 'e'] : ['e', 'e'];
+            const eyeGamesB = eyeB === 'EE' ? ['E', 'E'] : eyeB === 'Ee' ? ['E', 'e'] : ['e', 'e'];
+            const piedGamesA = piedA === 'Pp' ? ['P', 'p'] : ['p', 'p'];
+            const piedGamesB = piedB === 'Pp' ? ['P', 'p'] : ['p', 'p'];
+
+            // 各遺伝子の組み合わせを計算
+            gA.B.forEach(bA => {
+                gA.M.forEach(mA => {
+                    gA.Y.forEach(yA => {
+                        gA.W.forEach(wA => {
+                            gA.A.forEach(aA => {
+                                eyeGamesA.forEach(eA => {
+                                    piedGamesA.forEach(pA => {
+                                        
+                                        gB.B.forEach(bB => {
+                                            gB.M.forEach(mB => {
+                                                gB.Y.forEach(yB => {
+                                                    gB.W.forEach(wB => {
+                                                        gB.A.forEach(aB => {
+                                                            eyeGamesB.forEach(eB => {
+                                                                piedGamesB.forEach(pB => {
+                                                                    
+                                                                    // 子の遺伝子型を作成
+                                                                    const childGenotype = makeChildGenotype(
+                                                                        [bA, bB], [mA, mB], [yA, yB], [wA, wB], [aA, aB], [eA, eB], [pA, pB]
+                                                                    );
+                                                                    
+                                                                    // 致死判定
+                                                                    if (childGenotype.includes('WW') || childGenotype.includes('PP')) {
+                                                                        const key = '致死';
+                                                                        results[key] = (results[key] || 0) + 1;
+                                                                    } else {
+                                                                        // 基本遺伝子型（最初の10文字）
+                                                                        const baseGenotype = childGenotype.substring(0, 10);
+                                                                        const coatName = genotypeDB[baseGenotype];
+                                                                        if (coatName) {
+                                                                            results[coatName] = (results[coatName] || 0) + 1;
+                                                                        }
+                                                                    }
+                                                                    totalCount++;
+                                                                });
+                                                            });
+                                                        });
+                                                    });
+                                                });
+                                            });
+                                        });
+                                    });
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+
+            // パーセンテージに変換
+            const finalResults = {};
+            Object.keys(results).forEach(color => {
+                finalResults[color] = {
+                    percentage: ((results[color] / totalCount) * 100).toFixed(1),
+                    genotypes: [color === '致死' ? '致死遺伝子' : color],
+                    isLethal: color === '致死',
+                    isHealthRisk: false
+                };
+            });
+
+            console.log("Final results:", finalResults);
+            return finalResults;
+        }
+
+        // 子の遺伝子型作成
+        function makeChildGenotype(B, M, Y, W, A, E, P) {
+            const sortAlleles = (alleles) => {
+                return alleles.sort((a, b) => {
+                    if (a === b) return 0;
+                    if (a === '-' || b === '-') return a === '-' ? 1 : -1;
+                    return a === a.toUpperCase() ? -1 : 1;
+                });
+            };
+
+            const bSorted = sortAlleles([...B]);
+            const mSorted = sortAlleles([...M]);
+            const ySorted = sortAlleles([...Y]);
+            const wSorted = sortAlleles([...W]);
+            const aSorted = sortAlleles([...A]);
+            const eSorted = sortAlleles([...E]);
+            const pSorted = sortAlleles([...P]);
+
+            return bSorted.join('') + mSorted.join('') + ySorted.join('') + 
+                   wSorted.join('') + aSorted.join('') + eSorted.join('') + pSorted.join('');
+        }
+
+        // 逆引き検索（簡素化版）
+        function reverseSearch() {
+            const targetColor = document.getElementById('target-color').value;
+            
+            if (!targetColor) {
+                showError('欲しい赤ちゃんの毛色を選択してください。');
+                return;
+            }
+
+            // 簡素化した逆引き検索
+            const combinations = [];
+            const testColors = ['ノーマル', 'パール', 'プディング', 'クリーミーライン', 'ブルーサファイア'];
+            
+            testColors.forEach(colorA => {
+                testColors.forEach(colorB => {
+                    if (colorToGenotypes[colorA] && colorToGenotypes[colorB]) {
+                        try {
+                            const results = calculateSimpleCross(
+                                colorToGenotypes[colorA][0], 
+                                colorToGenotypes[colorB][0], 
+                                'ee', 'ee', 'pp', 'pp'
+                            );
+                            
+                            if (results[targetColor] && parseFloat(results[targetColor].percentage) > 0) {
+                                combinations.push({
+                                    parentA: colorA,
+                                    parentB: colorB,
+                                    probability: results[targetColor].percentage
+                                });
+                            }
+                        } catch (error) {
+                            console.log("Error with combination:", colorA, "x", colorB);
+                        }
+                    }
+                });
+            });
+
+            displayReverseResults(targetColor, combinations.slice(0, 5));
+        }
+
         // 子の遺伝子型計算
-        function calculateOffspring(genotypesA, genotypesB) {
+        function calculateOffspring(genotypesA, genotypesB, eyeA, eyeB, piedA, piedB) {
             const offspringCounts = {};
             let totalOffspring = 0;
 
             genotypesA.forEach(genotypeA => {
                 genotypesB.forEach(genotypeB => {
-                    const offspring = crossGenotypes(genotypeA, genotypeB);
+                    const offspring = crossGenotypes(genotypeA, genotypeB, eyeA, eyeB, piedA, piedB);
+                    
                     offspring.forEach(child => {
-                        offspringCounts[child] = (offspringCounts[child] || 0) + 1;
+                        if (child.startsWith('LETHAL')) {
+                            offspringCounts['致死'] = (offspringCounts['致死'] || 0) + 1;
+                        } else {
+                            offspringCounts[child] = (offspringCounts[child] || 0) + 1;
+                        }
                         totalOffspring++;
                     });
                 });
             });
 
-            // 結果を色別にまとめる
+            // 結果を毛色別にまとめる
             const colorResults = {};
             Object.keys(offspringCounts).forEach(genotype => {
-                if (genotype === 'LETHAL') {
+                if (genotype === '致死') {
                     colorResults['致死'] = {
                         percentage: ((offspringCounts[genotype] / totalOffspring) * 100).toFixed(1),
                         genotypes: ['致死遺伝子'],
                         isLethal: true
                     };
                 } else {
-                    const color = genotypeToColor[genotype];
-                    if (color) {
-                        if (!colorResults[color]) {
-                            colorResults[color] = {
+                    // 基本遺伝子型のみを取得（目色・パイドを除く）
+                    const baseGenotype = genotype.substring(0, 10);
+                    const coatName = genotypeDB[baseGenotype];
+                    if (coatName) {
+                        if (!colorResults[coatName]) {
+                            colorResults[coatName] = {
                                 percentage: 0,
                                 genotypes: [],
-                                isLethal: false
+                                isLethal: false,
+                                isHealthRisk: baseGenotype.includes('YY')
                             };
                         }
-                        colorResults[color].percentage = (
-                            (colorResults[color].percentage === 0 ? 0 : parseFloat(colorResults[color].percentage)) +
+                        colorResults[coatName].percentage = (
+                            parseFloat(colorResults[coatName].percentage) +
                             ((offspringCounts[genotype] / totalOffspring) * 100)
                         ).toFixed(1);
-                        colorResults[color].genotypes.push(genotype);
+                        if (!colorResults[coatName].genotypes.includes(baseGenotype)) {
+                            colorResults[coatName].genotypes.push(baseGenotype);
+                        }
                     }
                 }
             });
@@ -634,9 +921,9 @@
         }
 
         // 2つの遺伝子型を交配
-        function crossGenotypes(genA, genB) {
-            const gamesA = generateGametes(genA);
-            const gamesB = generateGametes(genB);
+        function crossGenotypes(genA, genB, eyeA, eyeB, piedA, piedB) {
+            const gamesA = generateGametes(genA, eyeA, piedA);
+            const gamesB = generateGametes(genB, eyeB, piedB);
             const offspring = [];
 
             gamesA.forEach(gameA => {
@@ -654,22 +941,30 @@
         }
 
         // 配偶子生成
-        function generateGametes(genotype) {
-            const cleaned = genotype.replace(/\s+/g, '');
-            const genes = parseGenotype(cleaned);
+        function generateGametes(genotype, eye, pied) {
+            const genes = parseGenotype(genotype);
             const gametes = [];
 
-            // 各遺伝子座の組み合わせを生成
-            const bGenes = [genes.B[0], genes.B[1]];
-            const mGenes = [genes.M[0], genes.M[1]];
-            const yGenes = [genes.Y[0], genes.Y[1]];
-            const wGenes = [genes.W[0], genes.W[1]];
+            if (!genes.B.length || !genes.M.length || !genes.Y.length || !genes.W.length || !genes.A.length) {
+                console.error("Failed to parse genotype:", genotype);
+                return ['bmywape']; // エラー時のフォールバック
+            }
 
-            bGenes.forEach(b => {
-                mGenes.forEach(m => {
-                    yGenes.forEach(y => {
-                        wGenes.forEach(w => {
-                            gametes.push(b + m + y + w);
+            const eyeGametes = eye === 'EE' ? ['E', 'E'] : 
+                             eye === 'Ee' ? ['E', 'e'] : ['e', 'e'];
+            const piedGametes = pied === 'Pp' ? ['P', 'p'] : ['p', 'p'];
+
+            genes.B.forEach(b => {
+                genes.M.forEach(m => {
+                    genes.Y.forEach(y => {
+                        genes.W.forEach(w => {
+                            genes.A.forEach(a => {
+                                eyeGametes.forEach(e => {
+                                    piedGametes.forEach(p => {
+                                        gametes.push(b + m + y + w + a + e + p);
+                                    });
+                                });
+                            });
                         });
                     });
                 });
@@ -680,43 +975,39 @@
 
         // 遺伝子型解析
         function parseGenotype(genotype) {
-            const genes = { B: [], M: [], Y: [], W: [] };
+            const cleanGenotype = genotype.replace(/\s+/g, '');
+            const genes = { B: [], M: [], Y: [], W: [], A: [] };
             
-            // B遺伝子
-            if (genotype.includes('BB')) {
-                genes.B = ['B', 'B'];
-            } else if (genotype.includes('Bb')) {
-                genes.B = ['B', 'b'];
-            } else if (genotype.includes('bb')) {
-                genes.B = ['b', 'b'];
-            }
+            // B遺伝子（位置0-1）
+            const bPart = cleanGenotype.substring(0, 2);
+            if (bPart === 'BB') genes.B = ['B', 'B'];
+            else if (bPart === 'Bb') genes.B = ['B', 'b'];
+            else if (bPart === 'bb') genes.B = ['b', 'b'];
 
-            // M遺伝子
-            if (genotype.includes('MM')) {
-                genes.M = ['M', 'M'];
-            } else if (genotype.includes('Mm')) {
-                genes.M = ['M', 'm'];
-            } else if (genotype.includes('mm')) {
-                genes.M = ['m', 'm'];
-            }
+            // M遺伝子（位置2-3）
+            const mPart = cleanGenotype.substring(2, 4);
+            if (mPart === 'MM') genes.M = ['M', 'M'];
+            else if (mPart === 'Mm') genes.M = ['M', 'm'];
+            else if (mPart === 'mm') genes.M = ['m', 'm'];
 
-            // Y遺伝子
-            if (genotype.includes('YY')) {
-                genes.Y = ['Y', 'Y'];
-            } else if (genotype.includes('Yy')) {
-                genes.Y = ['Y', 'y'];
-            } else if (genotype.includes('yy')) {
-                genes.Y = ['y', 'y'];
-            }
+            // Y遺伝子（位置4-5）
+            const yPart = cleanGenotype.substring(4, 6);
+            if (yPart === 'YY') genes.Y = ['Y', 'Y'];
+            else if (yPart === 'Yy') genes.Y = ['Y', 'y'];
+            else if (yPart === 'yy') genes.Y = ['y', 'y'];
 
-            // W遺伝子
-            if (genotype.includes('WW')) {
-                genes.W = ['W', 'W'];
-            } else if (genotype.includes('Ww')) {
-                genes.W = ['W', 'w'];
-            } else if (genotype.includes('ww')) {
-                genes.W = ['w', 'w'];
-            }
+            // W遺伝子（位置6-7）
+            const wPart = cleanGenotype.substring(6, 8);
+            if (wPart === 'WW') genes.W = ['W', 'W'];
+            else if (wPart === 'Ww') genes.W = ['W', 'w'];
+            else if (wPart === 'ww') genes.W = ['w', 'w'];
+
+            // A遺伝子（位置8-9）
+            const aPart = cleanGenotype.substring(8, 10);
+            if (aPart === 'AA') genes.A = ['A', 'A'];
+            else if (aPart === 'Aa') genes.A = ['A', 'a'];
+            else if (aPart === 'aa') genes.A = ['a', 'a'];
+            else if (aPart === '--') genes.A = ['-', '-'];
 
             return genes;
         }
@@ -727,16 +1018,20 @@
                 B: [gameteA[0], gameteB[0]].sort().reverse(),
                 M: [gameteA[1], gameteB[1]].sort().reverse(),
                 Y: [gameteA[2], gameteB[2]].sort().reverse(),
-                W: [gameteA[3], gameteB[3]].sort().reverse()
+                W: [gameteA[3], gameteB[3]].sort().reverse(),
+                A: [gameteA[4], gameteB[4]].sort().reverse(),
+                E: [gameteA[5], gameteB[5]].sort().reverse(),
+                P: [gameteA[6], gameteB[6]].sort().reverse()
             };
 
-            return alleles.B.join('') + alleles.M.join('') + ' ' + alleles.Y.join('') + alleles.W.join('');
+            return alleles.B.join('') + alleles.M.join('') + 
+                   alleles.Y.join('') + alleles.W.join('') + 
+                   alleles.A.join('') + alleles.E.join('') + alleles.P.join('');
         }
 
         // 致死判定
         function isLethal(genotype) {
-            // WW遺伝子型は致死
-            return genotype.includes('WW');
+            return genotype.includes('WW') || genotype.includes('PP');
         }
 
         // 結果表示
@@ -748,19 +1043,30 @@
             Object.keys(results).forEach(color => {
                 const result = results[color];
                 const resultDiv = document.createElement('div');
-                resultDiv.className = `result-item ${result.isLethal ? 'lethal' : ''}`;
+                
+                let className = 'result-item';
+                if (result.isLethal) className += ' lethal';
+                else if (result.isHealthRisk) className += ' health-risk';
+                
+                resultDiv.className = className;
+                
+                let statusText = '';
+                if (result.isLethal) statusText = '<div style="font-size: 0.9rem; color: #dc3545;">※ 致死遺伝子</div>';
+                else if (result.isHealthRisk) statusText = '<div style="font-size: 0.9rem; color: #856404;">※ 健康リスク</div>';
                 
                 resultDiv.innerHTML = `
                     <strong>${color}: ${result.percentage}%</strong>
-                    ${result.isLethal ? '<div class="lethal-warning">※ 致死遺伝子</div>' : ''}
-                    <div class="genotype-detail">遺伝子型: ${result.genotypes.join(' / ')}</div>
+                    ${statusText}
+                    <div style="font-size: 0.9rem; color: #666; margin-top: 5px;">
+                        遺伝子型: ${result.genotypes.slice(0, 3).join(' / ')}${result.genotypes.length > 3 ? ' など' : ''}
+                    </div>
                 `;
                 
                 resultsContainer.appendChild(resultDiv);
             });
         }
 
-        // 逆引き検索
+        // 逆引き検索（簡素化版）
         function reverseSearch() {
             const targetColor = document.getElementById('target-color').value;
             
@@ -769,55 +1075,40 @@
                 return;
             }
 
-            const parentCombinations = findParentCombinations(targetColor);
-            displayReverseResults(targetColor, parentCombinations);
-        }
-
-        // 親の組み合わせを検索
-        function findParentCombinations(targetColor) {
+            // 簡素化した逆引き検索
             const combinations = [];
-            const colors = Object.keys(genotypeData);
+            const testColors = ['ノーマル', 'パール', 'プディング', 'クリーミーライン', 'ブルーサファイア'];
             
-            // 全ての色の組み合わせをテスト
-            colors.forEach(colorA => {
-                colors.forEach(colorB => {
-                    const genotypesA = genotypeData[colorA];
-                    const genotypesB = genotypeData[colorB];
-                    const results = calculateOffspring(genotypesA, genotypesB);
-                    
-                    if (results[targetColor] && parseFloat(results[targetColor].percentage) > 0) {
-                        // 致死遺伝子が含まれていない組み合わせのみ追加
-                        if (!results['致死'] || parseFloat(results['致死'].percentage) === 0) {
-                            combinations.push({
-                                parentA: colorA,
-                                parentB: colorB,
-                                probability: results[targetColor].percentage,
-                                genotypesA: genotypesA,
-                                genotypesB: genotypesB
-                            });
+            testColors.forEach(colorA => {
+                testColors.forEach(colorB => {
+                    if (colorToGenotypes[colorA] && colorToGenotypes[colorB]) {
+                        try {
+                            const results = calculateSimpleCross(
+                                colorToGenotypes[colorA][0], 
+                                colorToGenotypes[colorB][0], 
+                                'ee', 'ee', 'pp', 'pp'
+                            );
+                            
+                            if (results[targetColor] && parseFloat(results[targetColor].percentage) > 0) {
+                                combinations.push({
+                                    parentA: colorA,
+                                    parentB: colorB,
+                                    probability: results[targetColor].percentage
+                                });
+                            }
+                        } catch (error) {
+                            console.log("Error with combination:", colorA, "x", colorB);
                         }
                     }
                 });
             });
 
-            // 確率の高い順にソート
-            combinations.sort((a, b) => parseFloat(b.probability) - parseFloat(a.probability));
-            
-            // 重複を除去（同じ組み合わせで順序が違うもの）
-            const uniqueCombinations = [];
-            const seen = new Set();
-            
-            combinations.forEach(combo => {
-                const key1 = `${combo.parentA}-${combo.parentB}`;
-                const key2 = `${combo.parentB}-${combo.parentA}`;
-                
-                if (!seen.has(key1) && !seen.has(key2)) {
-                    seen.add(key1);
-                    uniqueCombinations.push(combo);
-                }
-            });
+            displayReverseResults(targetColor, combinations.slice(0, 5));
+        }
 
-            return uniqueCombinations.slice(0, 5); // 最大5つまで表示
+        // 親の組み合わせを検索
+        function findParentCombinations(targetColor) {
+            return []; // 簡素化のため空を返す
         }
 
         // 逆引き結果表示
@@ -844,29 +1135,15 @@
 
             combinations.forEach((combo, index) => {
                 const comboDiv = document.createElement('div');
-                comboDiv.className = 'parent-combo';
+                comboDiv.className = 'result-item';
                 
                 comboDiv.innerHTML = `
                     <strong>${combo.parentA} × ${combo.parentB}</strong>
                     <div>出現確率: ${combo.probability}%</div>
-                    <div class="genotype-detail">
-                        ${combo.parentA}: ${combo.genotypesA.join(' / ')}<br>
-                        ${combo.parentB}: ${combo.genotypesB.join(' / ')}
-                    </div>
                 `;
                 
                 resultsContainer.appendChild(comboDiv);
             });
-
-            // 注意書きを追加
-            const noteDiv = document.createElement('div');
-            noteDiv.innerHTML = `
-                <p style="margin-top: 20px; font-size: 0.9rem; color: #666;">
-                    ※表示される組み合わせは代表的なものです。<br>
-                    ※致死遺伝子が発生する組み合わせは除外されています。
-                </p>
-            `;
-            resultsContainer.appendChild(noteDiv);
         }
 
         // エラーメッセージ表示
@@ -882,7 +1159,6 @@
             
             errorDiv.textContent = message;
             
-            // 3秒後にエラーメッセージを削除
             setTimeout(() => {
                 if (errorDiv.parentNode) {
                     errorDiv.parentNode.removeChild(errorDiv);
@@ -892,20 +1168,15 @@
 
         // タブ切り替え
         function showTab(tabName) {
-            // 全てのタブを非表示
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
             });
             
-            // 全てのタブボタンを非アクティブ
             document.querySelectorAll('.tab-button').forEach(button => {
                 button.classList.remove('active');
             });
             
-            // 選択されたタブを表示
             document.getElementById(tabName).classList.add('active');
-            
-            // 対応するタブボタンをアクティブ
             event.target.classList.add('active');
         }
 
