@@ -238,6 +238,12 @@
             color: #856404;
         }
 
+        .result-item.unknown-color {
+            border-left-color: #6f42c1;
+            background: #f8f7ff;
+            color: #6f42c1;
+        }
+
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -427,68 +433,156 @@
     </div>
 
     <script>
-        // 遺伝子型データベース（簡潔版）
+        // 遺伝子型データベース（CSVの完全版）
         const genotypeDB = {
-            // イエロームーン
-            "bbmmYywwAA": "イエロームーン", "bbmmYywwAa": "イエロームーン", "bbmmYyww--": "イエロームーン",
-            // クリーミーサファイア・ムーングレー
-            "bbmmyywwAA": "クリーミーサファイア・ムーングレー", "bbmmyywwAa": "クリーミーサファイア・ムーングレー", "bbmmyyww--": "クリーミーサファイア・ムーングレー",
-            // ホワイトムーン
-            "bbmmyyWwAA": "ホワイトムーン", "bbmmyyWwAa": "ホワイトムーン", "bbmmyyWw--": "ホワイトムーン",
-            // クリーミーラインムーン
-            "bbmmYyWwAA": "クリーミーラインムーン", "bbmmYyWwAa": "クリーミーラインムーン", "bbmmYyWw--": "クリーミーラインムーン",
-            // ノーマル
-            "BBMMyywwAA": "ノーマル", "BBMMyywwAa": "ノーマル", "BBMMyyww--": "ノーマル",
-            "BbMMyywwAA": "ノーマル", "BbMMyywwAa": "ノーマル", "BbMMyyww--": "ノーマル",
-            "BbMmyywwAA": "ノーマル", "BbMmyywwAa": "ノーマル", "BbMmyyww--": "ノーマル",
-            "BBMmyywwAA": "ノーマル", "BBMmyywwAa": "ノーマル", "BBMmyyww--": "ノーマル",
-            // ブラックジャンガリアン（ノーマルブラック）
-            "BBMMyywwaa": "ブラックジャンガリアン（ノーマルブラック）", "BbMMyywwaa": "ブラックジャンガリアン（ノーマルブラック）", "BbMmyywwaa": "ブラックジャンガリアン（ノーマルブラック）",
-            // パール
-            "BBMMyyWwAA": "パール", "BBMMyyWwAa": "パール", "BBMMyyWw--": "パール",
-            "BbMMyyWwAA": "パール", "BbMMyyWwAa": "パール", "BbMMyyWw--": "パール",
-            "BbMmyyWwAA": "パール", "BbMmyyWwAa": "パール", "BbMmyyWw--": "パール",
-            "BBMmyyWwAA": "パール", "BBMmyyWwAa": "パール", "BBMmyyWw--": "パール",
-            // プディング
-            "BBMMYywwAA": "プディング", "BBMMYywwAa": "プディング", "BBMMYyww--": "プディング",
-            "BbMMYywwAA": "プディング", "BbMMYywwAa": "プディング", "BbMMYyww--": "プディング",
-            "BbMmYywwAA": "プディング", "BbMmYywwAa": "プディング", "BbMmYyww--": "プディング",
-            "BBMmYywwAA": "プディング", "BBMmYywwAa": "プディング", "BBMmYyww--": "プディング",
-            // クリーミーライン
-            "BBMMYyWwAA": "クリーミーライン", "BBMMYyWwAa": "クリーミーライン", "BBMMYyWw--": "クリーミーライン",
-            "BbMMYyWwAA": "クリーミーライン", "BbMMYyWwAa": "クリーミーライン", "BbMMYyWw--": "クリーミーライン",
-            "BBMmYyWwAA": "クリーミーライン", "BBMmYyWwAa": "クリーミーライン", "BBMmYyWw--": "クリーミーライン",
-            "BbMmYyWwAA": "クリーミーライン", "BbMmYyWwAa": "クリーミーライン", "BbMmYyWw--": "クリーミーライン",
-            // サファイアパール
-            "bbMMyyWwAA": "サファイアパール", "bbMMyyWwAa": "サファイアパール", "bbMMyyWw--": "サファイアパール",
-            "bbMmyyWwAA": "サファイアパール", "bbMmyyWwAa": "サファイアパール", "bbMmyyWw--": "サファイアパール",
-            // サファイアプディング
-            "bbMMYywwAA": "サファイアプディング", "bbMMYywwAa": "サファイアプディング", "bbMMYyww--": "サファイアプディング",
-            "bbMmYywwAA": "サファイアプディング", "bbMmYywwAa": "サファイアプディング", "bbMmYyww--": "サファイアプディング",
-            // ブルーサファイア
-            "bbMMyywwAA": "ブルーサファイア", "bbMMyywwAa": "ブルーサファイア", "bbMMyyww--": "ブルーサファイア",
-            "bbMmyywwAA": "ブルーサファイア", "bbMmyywwAa": "ブルーサファイア", "bbMmyyww--": "ブルーサファイア",
-            // ロシアンブルー（ブルサファブラック）
-            "bbMMyywwaa": "ロシアンブルー（ブルサファブラック）", "bbMmyywwaa": "ロシアンブルー（ブルサファブラック）",
-            // サファイアクリーミーライン
-            "bbMMYyWwAA": "サファイアクリーミーライン", "bbMMYyWwAa": "サファイアクリーミーライン", "bbMMYyWw--": "サファイアクリーミーライン",
-            "bbMmYyWwAA": "サファイアクリーミーライン", "bbMmYyWwAa": "サファイアクリーミーライン", "bbMmYyWw--": "サファイアクリーミーライン",
-            // ホワイトモカ
-            "BBmmyyWwAA": "ホワイトモカ", "BBmmyyWwAa": "ホワイトモカ", "BBmmyyWw--": "ホワイトモカ",
-            "BbmmyyWwAA": "ホワイトモカ", "BbmmyyWwAa": "ホワイトモカ", "BbmmyyWw--": "ホワイトモカ",
-            // ミルクティー
-            "BBmmYywwAA": "ミルクティー", "BBmmYywwAa": "ミルクティー", "BBmmYyww--": "ミルクティー",
-            "BbmmYywwAA": "ミルクティー", "BbmmYywwAa": "ミルクティー", "BbmmYyww--": "ミルクティー",
-            // モカブラウン
-            "BBmmyywwAA": "モカブラウン", "BBmmyywwAa": "モカブラウン", "BBmmyyww--": "モカブラウン",
-            "BbmmyywwAA": "モカブラウン", "BbmmyywwAa": "モカブラウン", "Bbmmyyww--": "モカブラウン",
-            // クリーミーラインモカ
-            "BBmmYyWwAA": "クリーミーラインモカ", "BBmmYyWwAa": "クリーミーラインモカ", "BBmmYyWw--": "クリーミーラインモカ",
-            "BbmmYyWwAA": "クリーミーラインモカ", "BbmmYyWwAa": "クリーミーラインモカ", "BbmmYyWw--": "クリーミーラインモカ"
+            "bbmmYywwaa": "（仮称）イエロームーンブラック※存在不明",
+            "bbmmyywwaa": "（仮称）クリーミーサファイア・ムーングレーブラック※存在不明",
+            "bbmmyyWwaa": "（仮称）ホワイトムーンブラック※存在不明",
+            "bbmmYywwAA": "イエロームーン",
+            "bbmmYywwAa": "イエロームーン",
+            "bbmmYyww--": "イエロームーン",
+            "bbmmyywwAA": "クリーミーサファイア・ムーングレー",
+            "bbmmyywwAa": "クリーミーサファイア・ムーングレー",
+            "bbmmyyww--": "クリーミーサファイア・ムーングレー",
+            "bbmmyyWwAA": "ホワイトムーン",
+            "bbmmyyWwAa": "ホワイトムーン",
+            "bbmmyyWw--": "ホワイトムーン",
+            "bbmmYyWwAA": "クリーミーラインムーン",
+            "bbmmYyWwAa": "クリーミーラインムーン",
+            "bbmmYyWwaa": "（仮称）クリーミーラインブラック※存在不明",
+            "bbmmYyWw--": "クリーミーラインムーン",
+            "BBMMyyWwaa": "（仮称）パールブラック※存在不明",
+            "BbMMyyWwaa": "（仮称）パールブラック※存在不明",
+            "BbMmyyWwaa": "（仮称）パールブラック※存在不明",
+            "BbMMYywwaa": "（仮称）プディングブラック※存在不明",
+            "BBMMYywwaa": "（仮称）プディングブラック※存在不明",
+            "BbMmYywwaa": "（仮称）プディングブラック※存在不明",
+            "BBMMyywwAA": "ノーマル",
+            "BBMMyywwAa": "ノーマル",
+            "BBMMyyww--": "ノーマル",
+            "BbMMyywwAA": "ノーマル",
+            "BbMMyywwAa": "ノーマル",
+            "BbMMyyww--": "ノーマル",
+            "BbMmyywwAA": "ノーマル",
+            "BbMmyywwAa": "ノーマル",
+            "BbMmyyww--": "ノーマル",
+            "BBMmyywwAA": "ノーマル",
+            "BBMmyywwAa": "ノーマル",
+            "BBMmyywwaa": "ブラックジャンガリアン（ノーマルブラック）",
+            "BBMmyyww--": "ノーマル",
+            "BBMMyyWwAA": "パール",
+            "BBMMyyWwAa": "パール",
+            "BBMMyyWw--": "パール",
+            "BbMMyyWwAA": "パール",
+            "BbMMyyWwAa": "パール",
+            "BbMMyyWw--": "パール",
+            "BbMmyyWwAA": "パール",
+            "BbMmyyWwAa": "パール",
+            "BbMmyyWw--": "パール",
+            "BBMmyyWwAA": "パール",
+            "BBMmyyWwAa": "パール",
+            "BBMmyyWwaa": "（仮称）パールブラック※存在不明",
+            "BBMmyyWw--": "パール",
+            "BBMmYywwAA": "プディング",
+            "BBMMYywwAA": "プディング",
+            "BBMMYywwAa": "プディング",
+            "BBMMYyww--": "プディング",
+            "BbMMYywwAA": "プディング",
+            "BbMMYywwAa": "プディング",
+            "BbMMYyww--": "プディング",
+            "BbMmYywwAA": "プディング",
+            "BbMmYywwAa": "プディング",
+            "BbMmYyww--": "プディング",
+            "BBMmYywwAa": "プディング",
+            "BBMmYywwaa": "（仮称）プディングブラック※存在不明",
+            "BBMmYyww--": "プディング",
+            "BBMMyywwaa": "ブラックジャンガリアン（ノーマルブラック）",
+            "BbMMyywwaa": "ブラックジャンガリアン（ノーマルブラック）",
+            "BbMmyywwaa": "ブラックジャンガリアン（ノーマルブラック）",
+            "BBMMYyWwAA": "クリーミーライン",
+            "BBMMYyWwAa": "クリーミーライン",
+            "BBMMYyWwaa": "（仮称）クリーミーラインブラック※存在不明",
+            "BBMMYyWw--": "クリーミーライン",
+            "BbMMYyWwAA": "クリーミーライン",
+            "BbMMYyWwAa": "クリーミーライン",
+            "BbMMYyWwaa": "（仮称）クリーミーラインブラック※存在不明",
+            "BbMMYyWw--": "クリーミーライン",
+            "BBMmYyWwAA": "クリーミーライン",
+            "BBMmYyWwAa": "クリーミーライン",
+            "BBMmYyWwaa": "（仮称）クリーミーラインブラック※存在不明",
+            "BBMmYyWw--": "クリーミーライン",
+            "BbMmYyWwAA": "クリーミーライン",
+            "BbMmYyWwAa": "クリーミーライン",
+            "BbMmYyWwaa": "（仮称）クリーミーラインブラック※存在不明",
+            "BbMmYyWw--": "クリーミーライン",
+            "bbMMyyWwaa": "（仮称）サファイアパールブラック※存在不明",
+            "bbMmyyWwaa": "（仮称）サファイアパールブラック※存在不明",
+            "bbMMYywwaa": "（仮称）サファイアプディングブラック※存在不明",
+            "bbMmYywwaa": "（仮称）サファイアプディングブラック※存在不明",
+            "bbMMyyWwAA": "サファイアパール",
+            "bbMMyyWwAa": "サファイアパール",
+            "bbMmyyWwAA": "サファイアパール",
+            "bbMmyyWwAa": "サファイアパール",
+            "bbMmyyWw--": "サファイアパール",
+            "bbMMyyWw--": "サファイアパール",
+            "bbMMYywwAA": "サファイアプディング",
+            "bbMMYywwAa": "サファイアプディング",
+            "bbMMYyww--": "サファイアプディング",
+            "bbMmYywwAA": "サファイアプディング",
+            "bbMmYywwAa": "サファイアプディング",
+            "bbMmYyww--": "サファイアプディング",
+            "bbMMyywwAA": "ブルーサファイア",
+            "bbMMyywwAa": "ブルーサファイア",
+            "bbMMyyww--": "ブルーサファイア",
+            "bbMmyywwAA": "ブルーサファイア",
+            "bbMmyywwAa": "ブルーサファイア",
+            "bbMmyyww--": "ブルーサファイア",
+            "bbMMyywwaa": "ロシアンブルー（ブルサファブラック）",
+            "bbMmyywwaa": "ロシアンブルー（ブルサファブラック）",
+            "bbMMYyWwAA": "サファイアクリーミーライン",
+            "bbMMYyWwAa": "サファイアクリーミーライン",
+            "bbMMYyWwaa": "（仮称）サファイアクリーミーライン※存在不明",
+            "bbMMYyWw--": "サファイアクリーミーライン",
+            "bbMmYyWwAA": "サファイアクリーミーライン",
+            "bbMmYyWwAa": "サファイアクリーミーライン",
+            "bbMmYyWwaa": "（仮称）サファイアクリーミーライン※存在不明",
+            "bbMmYyWw--": "サファイアクリーミーライン",
+            "BBmmyyWwaa": "（仮称）ホワイトモカブラック※存在不明",
+            "BbmmyyWwaa": "（仮称）ホワイトモカブラック※存在不明",
+            "BbmmYywwaa": "（仮称）ミルクティーブラック（存在不明）",
+            "BBmmYywwaa": "（仮称）ミルクティーブラック※存在不明",
+            "BBmmyywwaa": "（仮称）モカブラック※存在不明",
+            "Bbmmyywwaa": "（仮称）モカブラック※存在不明",
+            "BBmmyyWw--": "ホワイトモカ",
+            "BbmmyyWw--": "ホワイトモカ",
+            "BBmmyyWwAA": "ホワイトモカ",
+            "BBmmyyWwAa": "ホワイトモカ",
+            "BbmmyyWwAA": "ホワイトモカ",
+            "BbmmyyWwAa": "ホワイトモカ",
+            "BBmmYyww--": "ミルクティー",
+            "BbmmYyww--": "ミルクティー",
+            "BBmmYywwAA": "ミルクティー",
+            "BBmmYywwAa": "ミルクティー",
+            "BbmmYywwAA": "ミルクティー",
+            "BbmmYywwAa": "ミルクティー",
+            "BBmmyyww--": "モカブラウン",
+            "Bbmmyyww--": "モカブラウン",
+            "BBmmyywwAA": "モカブラウン",
+            "BBmmyywwAa": "モカブラウン",
+            "BbmmyywwAA": "モカブラウン",
+            "BbmmyywwAa": "モカブラウン",
+            "BBmmYyWwAA": "クリーミーラインモカ",
+            "BBmmYyWwAa": "クリーミーラインモカ",
+            "BBmmYyWwaa": "（仮称）クリーミーラインモカブラック※存在不明",
+            "BBmmYyWw--": "クリーミーラインモカ",
+            "BbmmYyWwAA": "クリーミーラインモカ",
+            "BbmmYyWwAa": "クリーミーラインモカ",
+            "BbmmYyWwaa": "（仮称）クリーミーラインモカブラック※存在不明",
+            "BbmmYyWw--": "クリーミーラインモカ"
         };
 
-        // 指定された順序で毛色を表示
-        const orderedColors = [
+        // 確実な毛色の順序（存在不明は除く）
+        const confirmedColors = [
             'ノーマル', 'パール', 'プディング', 'クリーミーライン', 'ブルーサファイア',
             'サファイアパール', 'サファイアプディング', 'サファイアクリーミーライン',
             'クリーミーサファイア・ムーングレー', 'クリーミーラインムーン', 'ホワイトムーン',
@@ -523,7 +617,8 @@
             selects.forEach(selectId => {
                 const select = document.getElementById(selectId);
                 select.innerHTML = '<option value="">選択してください</option>';
-                orderedColors.forEach(color => {
+                
+                confirmedColors.forEach(color => {
                     if (colorToGenotypes[color]) {
                         select.innerHTML += `<option value="${color}">${color}</option>`;
                     }
@@ -536,7 +631,7 @@
             const chartDiv = document.getElementById('colorChart');
             chartDiv.innerHTML = '';
             
-            orderedColors.forEach(color => {
+            confirmedColors.forEach(color => {
                 if (colorToGenotypes[color]) {
                     const colorDiv = document.createElement('div');
                     colorDiv.className = 'color-item';
@@ -675,7 +770,7 @@
             }
         }
 
-        // 交配シミュレーション（簡素化版）
+        // 交配シミュレーション
         function simulateBreeding() {
             const colorA = document.getElementById('parentA-color').value;
             const colorB = document.getElementById('parentB-color').value;
@@ -697,10 +792,8 @@
                     showError('指定した遺伝子型ペアモードでは、両方の親の遺伝子型を選択してください。');
                     return;
                 }
-                // 代表的な1つのペアで計算
                 results = calculateSimpleCross(selectedGenotypeA, selectedGenotypeB, eyeA, eyeB, piedA, piedB);
             } else {
-                // 代表的な遺伝子型で計算（最初の1つずつ）
                 const genotypesA = colorToGenotypes[colorA];
                 const genotypesB = colorToGenotypes[colorB];
                 
@@ -709,7 +802,6 @@
                     return;
                 }
                 
-                // 代表的な遺伝子型を使用（最初のもの）
                 results = calculateSimpleCross(genotypesA[0], genotypesB[0], eyeA, eyeB, piedA, piedB);
             }
 
@@ -731,13 +823,11 @@
             const results = {};
             let totalCount = 0;
 
-            // 基本的なメンデルの法則で計算
             const eyeGamesA = eyeA === 'EE' ? ['E', 'E'] : eyeA === 'Ee' ? ['E', 'e'] : ['e', 'e'];
             const eyeGamesB = eyeB === 'EE' ? ['E', 'E'] : eyeB === 'Ee' ? ['E', 'e'] : ['e', 'e'];
             const piedGamesA = piedA === 'Pp' ? ['P', 'p'] : ['p', 'p'];
             const piedGamesB = piedB === 'Pp' ? ['P', 'p'] : ['p', 'p'];
 
-            // 各遺伝子の組み合わせを計算
             gA.B.forEach(bA => {
                 gA.M.forEach(mA => {
                     gA.Y.forEach(yA => {
@@ -745,7 +835,6 @@
                             gA.A.forEach(aA => {
                                 eyeGamesA.forEach(eA => {
                                     piedGamesA.forEach(pA => {
-                                        
                                         gB.B.forEach(bB => {
                                             gB.M.forEach(mB => {
                                                 gB.Y.forEach(yB => {
@@ -753,18 +842,14 @@
                                                         gB.A.forEach(aB => {
                                                             eyeGamesB.forEach(eB => {
                                                                 piedGamesB.forEach(pB => {
-                                                                    
-                                                                    // 子の遺伝子型を作成
                                                                     const childGenotype = makeChildGenotype(
                                                                         [bA, bB], [mA, mB], [yA, yB], [wA, wB], [aA, aB], [eA, eB], [pA, pB]
                                                                     );
                                                                     
-                                                                    // 致死判定
                                                                     if (childGenotype.includes('WW') || childGenotype.includes('PP')) {
                                                                         const key = '致死';
                                                                         results[key] = (results[key] || 0) + 1;
                                                                     } else {
-                                                                        // 基本遺伝子型（最初の10文字）
                                                                         const baseGenotype = childGenotype.substring(0, 10);
                                                                         const coatName = genotypeDB[baseGenotype];
                                                                         if (coatName) {
@@ -787,7 +872,6 @@
                 });
             });
 
-            // パーセンテージに変換
             const finalResults = {};
             Object.keys(results).forEach(color => {
                 finalResults[color] = {
@@ -798,7 +882,6 @@
                 };
             });
 
-            console.log("Final results:", finalResults);
             return finalResults;
         }
 
@@ -824,7 +907,41 @@
                    wSorted.join('') + aSorted.join('') + eSorted.join('') + pSorted.join('');
         }
 
-        // 逆引き検索（簡素化版）
+        // 遺伝子型解析
+        function parseGenotype(genotype) {
+            const cleanGenotype = genotype.replace(/\s+/g, '');
+            const genes = { B: [], M: [], Y: [], W: [], A: [] };
+            
+            const bPart = cleanGenotype.substring(0, 2);
+            if (bPart === 'BB') genes.B = ['B', 'B'];
+            else if (bPart === 'Bb') genes.B = ['B', 'b'];
+            else if (bPart === 'bb') genes.B = ['b', 'b'];
+
+            const mPart = cleanGenotype.substring(2, 4);
+            if (mPart === 'MM') genes.M = ['M', 'M'];
+            else if (mPart === 'Mm') genes.M = ['M', 'm'];
+            else if (mPart === 'mm') genes.M = ['m', 'm'];
+
+            const yPart = cleanGenotype.substring(4, 6);
+            if (yPart === 'YY') genes.Y = ['Y', 'Y'];
+            else if (yPart === 'Yy') genes.Y = ['Y', 'y'];
+            else if (yPart === 'yy') genes.Y = ['y', 'y'];
+
+            const wPart = cleanGenotype.substring(6, 8);
+            if (wPart === 'WW') genes.W = ['W', 'W'];
+            else if (wPart === 'Ww') genes.W = ['W', 'w'];
+            else if (wPart === 'ww') genes.W = ['w', 'w'];
+
+            const aPart = cleanGenotype.substring(8, 10);
+            if (aPart === 'AA') genes.A = ['A', 'A'];
+            else if (aPart === 'Aa') genes.A = ['A', 'a'];
+            else if (aPart === 'aa') genes.A = ['a', 'a'];
+            else if (aPart === '--') genes.A = ['-', '-'];
+
+            return genes;
+        }
+
+        // 逆引き検索
         function reverseSearch() {
             const targetColor = document.getElementById('target-color').value;
             
@@ -833,7 +950,6 @@
                 return;
             }
 
-            // 簡素化した逆引き検索
             const combinations = [];
             const testColors = ['ノーマル', 'パール', 'プディング', 'クリーミーライン', 'ブルーサファイア'];
             
@@ -841,6 +957,11 @@
                 testColors.forEach(colorB => {
                     if (colorToGenotypes[colorA] && colorToGenotypes[colorB]) {
                         try {
+                            // 致死遺伝子が発生する組み合わせをスキップ
+                            if (canProduceLethal(colorA, colorB)) {
+                                return;
+                            }
+                            
                             const results = calculateSimpleCross(
                                 colorToGenotypes[colorA][0], 
                                 colorToGenotypes[colorB][0], 
@@ -862,176 +983,6 @@
             });
 
             displayReverseResults(targetColor, combinations.slice(0, 5));
-        }
-
-        // 子の遺伝子型計算
-        function calculateOffspring(genotypesA, genotypesB, eyeA, eyeB, piedA, piedB) {
-            const offspringCounts = {};
-            let totalOffspring = 0;
-
-            genotypesA.forEach(genotypeA => {
-                genotypesB.forEach(genotypeB => {
-                    const offspring = crossGenotypes(genotypeA, genotypeB, eyeA, eyeB, piedA, piedB);
-                    
-                    offspring.forEach(child => {
-                        if (child.startsWith('LETHAL')) {
-                            offspringCounts['致死'] = (offspringCounts['致死'] || 0) + 1;
-                        } else {
-                            offspringCounts[child] = (offspringCounts[child] || 0) + 1;
-                        }
-                        totalOffspring++;
-                    });
-                });
-            });
-
-            // 結果を毛色別にまとめる
-            const colorResults = {};
-            Object.keys(offspringCounts).forEach(genotype => {
-                if (genotype === '致死') {
-                    colorResults['致死'] = {
-                        percentage: ((offspringCounts[genotype] / totalOffspring) * 100).toFixed(1),
-                        genotypes: ['致死遺伝子'],
-                        isLethal: true
-                    };
-                } else {
-                    // 基本遺伝子型のみを取得（目色・パイドを除く）
-                    const baseGenotype = genotype.substring(0, 10);
-                    const coatName = genotypeDB[baseGenotype];
-                    if (coatName) {
-                        if (!colorResults[coatName]) {
-                            colorResults[coatName] = {
-                                percentage: 0,
-                                genotypes: [],
-                                isLethal: false,
-                                isHealthRisk: baseGenotype.includes('YY')
-                            };
-                        }
-                        colorResults[coatName].percentage = (
-                            parseFloat(colorResults[coatName].percentage) +
-                            ((offspringCounts[genotype] / totalOffspring) * 100)
-                        ).toFixed(1);
-                        if (!colorResults[coatName].genotypes.includes(baseGenotype)) {
-                            colorResults[coatName].genotypes.push(baseGenotype);
-                        }
-                    }
-                }
-            });
-
-            return colorResults;
-        }
-
-        // 2つの遺伝子型を交配
-        function crossGenotypes(genA, genB, eyeA, eyeB, piedA, piedB) {
-            const gamesA = generateGametes(genA, eyeA, piedA);
-            const gamesB = generateGametes(genB, eyeB, piedB);
-            const offspring = [];
-
-            gamesA.forEach(gameA => {
-                gamesB.forEach(gameB => {
-                    const child = combineGametes(gameA, gameB);
-                    if (isLethal(child)) {
-                        offspring.push('LETHAL');
-                    } else {
-                        offspring.push(child);
-                    }
-                });
-            });
-
-            return offspring;
-        }
-
-        // 配偶子生成
-        function generateGametes(genotype, eye, pied) {
-            const genes = parseGenotype(genotype);
-            const gametes = [];
-
-            if (!genes.B.length || !genes.M.length || !genes.Y.length || !genes.W.length || !genes.A.length) {
-                console.error("Failed to parse genotype:", genotype);
-                return ['bmywape']; // エラー時のフォールバック
-            }
-
-            const eyeGametes = eye === 'EE' ? ['E', 'E'] : 
-                             eye === 'Ee' ? ['E', 'e'] : ['e', 'e'];
-            const piedGametes = pied === 'Pp' ? ['P', 'p'] : ['p', 'p'];
-
-            genes.B.forEach(b => {
-                genes.M.forEach(m => {
-                    genes.Y.forEach(y => {
-                        genes.W.forEach(w => {
-                            genes.A.forEach(a => {
-                                eyeGametes.forEach(e => {
-                                    piedGametes.forEach(p => {
-                                        gametes.push(b + m + y + w + a + e + p);
-                                    });
-                                });
-                            });
-                        });
-                    });
-                });
-            });
-
-            return gametes;
-        }
-
-        // 遺伝子型解析
-        function parseGenotype(genotype) {
-            const cleanGenotype = genotype.replace(/\s+/g, '');
-            const genes = { B: [], M: [], Y: [], W: [], A: [] };
-            
-            // B遺伝子（位置0-1）
-            const bPart = cleanGenotype.substring(0, 2);
-            if (bPart === 'BB') genes.B = ['B', 'B'];
-            else if (bPart === 'Bb') genes.B = ['B', 'b'];
-            else if (bPart === 'bb') genes.B = ['b', 'b'];
-
-            // M遺伝子（位置2-3）
-            const mPart = cleanGenotype.substring(2, 4);
-            if (mPart === 'MM') genes.M = ['M', 'M'];
-            else if (mPart === 'Mm') genes.M = ['M', 'm'];
-            else if (mPart === 'mm') genes.M = ['m', 'm'];
-
-            // Y遺伝子（位置4-5）
-            const yPart = cleanGenotype.substring(4, 6);
-            if (yPart === 'YY') genes.Y = ['Y', 'Y'];
-            else if (yPart === 'Yy') genes.Y = ['Y', 'y'];
-            else if (yPart === 'yy') genes.Y = ['y', 'y'];
-
-            // W遺伝子（位置6-7）
-            const wPart = cleanGenotype.substring(6, 8);
-            if (wPart === 'WW') genes.W = ['W', 'W'];
-            else if (wPart === 'Ww') genes.W = ['W', 'w'];
-            else if (wPart === 'ww') genes.W = ['w', 'w'];
-
-            // A遺伝子（位置8-9）
-            const aPart = cleanGenotype.substring(8, 10);
-            if (aPart === 'AA') genes.A = ['A', 'A'];
-            else if (aPart === 'Aa') genes.A = ['A', 'a'];
-            else if (aPart === 'aa') genes.A = ['a', 'a'];
-            else if (aPart === '--') genes.A = ['-', '-'];
-
-            return genes;
-        }
-
-        // 配偶子結合
-        function combineGametes(gameteA, gameteB) {
-            const alleles = {
-                B: [gameteA[0], gameteB[0]].sort().reverse(),
-                M: [gameteA[1], gameteB[1]].sort().reverse(),
-                Y: [gameteA[2], gameteB[2]].sort().reverse(),
-                W: [gameteA[3], gameteB[3]].sort().reverse(),
-                A: [gameteA[4], gameteB[4]].sort().reverse(),
-                E: [gameteA[5], gameteB[5]].sort().reverse(),
-                P: [gameteA[6], gameteB[6]].sort().reverse()
-            };
-
-            return alleles.B.join('') + alleles.M.join('') + 
-                   alleles.Y.join('') + alleles.W.join('') + 
-                   alleles.A.join('') + alleles.E.join('') + alleles.P.join('');
-        }
-
-        // 致死判定
-        function isLethal(genotype) {
-            return genotype.includes('WW') || genotype.includes('PP');
         }
 
         // 結果表示
@@ -1047,68 +998,39 @@
                 let className = 'result-item';
                 if (result.isLethal) className += ' lethal';
                 else if (result.isHealthRisk) className += ' health-risk';
+                else if (color.includes('※存在不明') || color.includes('（存在不明）')) {
+                    className += ' unknown-color';
+                }
                 
                 resultDiv.className = className;
                 
                 let statusText = '';
                 if (result.isLethal) statusText = '<div style="font-size: 0.9rem; color: #dc3545;">※ 致死遺伝子</div>';
                 else if (result.isHealthRisk) statusText = '<div style="font-size: 0.9rem; color: #856404;">※ 健康リスク</div>';
+                else if (color.includes('※存在不明') || color.includes('（存在不明）')) {
+                    statusText = '<div style="font-size: 0.9rem; color: #6f42c1;">※ 存在不明の毛色</div>';
+                }
+                
+                let genotypeDisplay = '';
+                if (result.isLethal) {
+                    genotypeDisplay = '致死遺伝子';
+                } else {
+                    const genotypesForColor = colorToGenotypes[color] || [];
+                    const displayGenotypes = genotypesForColor.slice(0, 4);
+                    const moreText = genotypesForColor.length > 4 ? ' など' : '';
+                    genotypeDisplay = displayGenotypes.join(' / ') + moreText;
+                }
                 
                 resultDiv.innerHTML = `
                     <strong>${color}: ${result.percentage}%</strong>
                     ${statusText}
                     <div style="font-size: 0.9rem; color: #666; margin-top: 5px;">
-                        遺伝子型: ${result.genotypes.slice(0, 3).join(' / ')}${result.genotypes.length > 3 ? ' など' : ''}
+                        遺伝子型: ${genotypeDisplay}
                     </div>
                 `;
                 
                 resultsContainer.appendChild(resultDiv);
             });
-        }
-
-        // 逆引き検索（簡素化版）
-        function reverseSearch() {
-            const targetColor = document.getElementById('target-color').value;
-            
-            if (!targetColor) {
-                showError('欲しい赤ちゃんの毛色を選択してください。');
-                return;
-            }
-
-            // 簡素化した逆引き検索
-            const combinations = [];
-            const testColors = ['ノーマル', 'パール', 'プディング', 'クリーミーライン', 'ブルーサファイア'];
-            
-            testColors.forEach(colorA => {
-                testColors.forEach(colorB => {
-                    if (colorToGenotypes[colorA] && colorToGenotypes[colorB]) {
-                        try {
-                            const results = calculateSimpleCross(
-                                colorToGenotypes[colorA][0], 
-                                colorToGenotypes[colorB][0], 
-                                'ee', 'ee', 'pp', 'pp'
-                            );
-                            
-                            if (results[targetColor] && parseFloat(results[targetColor].percentage) > 0) {
-                                combinations.push({
-                                    parentA: colorA,
-                                    parentB: colorB,
-                                    probability: results[targetColor].percentage
-                                });
-                            }
-                        } catch (error) {
-                            console.log("Error with combination:", colorA, "x", colorB);
-                        }
-                    }
-                });
-            });
-
-            displayReverseResults(targetColor, combinations.slice(0, 5));
-        }
-
-        // 親の組み合わせを検索
-        function findParentCombinations(targetColor) {
-            return []; // 簡素化のため空を返す
         }
 
         // 逆引き結果表示
