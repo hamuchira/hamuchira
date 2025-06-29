@@ -18,7 +18,7 @@
         }
 
         .container {
-            max-width: 900px;
+            max-width: 1000px;
             margin: 0 auto;
         }
 
@@ -191,6 +191,8 @@
             border: 1px solid #ddd;
             cursor: pointer;
             transition: all 0.2s ease;
+            font-family: monospace;
+            font-size: 0.9rem;
         }
 
         .genotype-item:hover {
@@ -305,6 +307,14 @@
     <div class="container">
         <h1>🐹 ジャンガリアンハムスター毛色シミュレーター</h1>
         
+        <div style="text-align: center; margin-bottom: 15px;">
+            <a href="https://www.youtube.com/playlist?list=PLpF705pFAL33ddUEEe-n3f2RxAo5os__T" 
+               target="_blank" 
+               style="font-size: 0.9rem; color: #6b4c85; text-decoration: none;">
+                by もっと！はむチラ長屋ch.
+            </a>
+        </div>
+        
         <div class="warning">
             <strong>⚠️ 注意事項</strong><br>
             このシミュレーターは、ジャンガリアンハムスターの毛色や遺伝子に関する「非公式」な情報をもとに作成しています。<br>
@@ -322,7 +332,70 @@
         <!-- 毛色一覧タブ -->
         <div id="color-list" class="tab-content active">
             <div class="section">
-                <h3>🎨 毛色一覧</h3>
+                <h3>🧬 遺伝子の基礎知識（Z座対応版）</h3>
+                <div style="background: linear-gradient(135deg, #fff9e6 0%, #ffebcd 100%); border: 2px solid #ffd700; border-radius: 15px; padding: 15px; margin-bottom: 15px; font-size: 0.85rem; color: #8b4513;">
+                    <strong>⚠️ 注意</strong><br>
+                    ※遺伝子記号は便宜上設定したもので、学術的に定められているものではありません。<br>
+                    Z座の追加により、遺伝子型は12文字（BBMMYYWWAAAZ座）になりました。
+                </div>
+                <div style="background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%); border: 2px solid #a3cff1; border-radius: 10px; padding: 15px; margin-bottom: 20px; font-size: 0.9rem; line-height: 1.6;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px;">
+                        <div>
+                            <strong>🅱️ B座（アグーチ遺伝子）</strong><br>
+                            BB: 発現（縞あり）<br>
+                            Bb: キャリア<br>
+                            bb: 非アグーチ
+                        </div>
+                        <div>
+                            <strong>Ⓜ️ M座（毛色を薄くする遺伝子）</strong><br>
+                            MM: 通常色<br>
+                            Mm: キャリア<br>
+                            mm: かなり薄くなる
+                        </div>
+                        <div>
+                            <strong>🟡 Y座（毛を黄色くする遺伝子）</strong><br>
+                            YY: <span style="color: #856404;">発現するが健康リスクあり</span><br>
+                            Yy: 発現<br>
+                            yy: 発現しない
+                        </div>
+                        <div>
+                            <strong>⚪ W座（毛を白くする遺伝子）</strong><br>
+                            WW: <span style="color: #dc3545;">致死</span><br>
+                            Ww: 発現<br>
+                            ww: 発現しない
+                        </div>
+                        <div>
+                            <strong>🖤 A座（ブラックの土台遺伝子）</strong><br>
+                            AA: 発現しない<br>
+                            Aa: ブラックキャリア<br>
+                            aa: 発現<br>
+                            --: ブラック遺伝子無し
+                        </div>
+                        <div>
+                            <strong>⚫ Z座（ブラック発現制御）</strong><br>
+                            ZZ: ブラック発現（完全）※<br>
+                            Zz: ブラック発現（やや弱い）※<br>
+                            zz: ブラック発現しない<br>
+                            <small>※A座がaaの時のみ</small>
+                        </div>
+                        <div>
+                            <strong>👁️ E座（目の色・不完全優性）</strong><br>
+                            EE: 赤目<br>
+                            Ee: ブドウ目（=ルビーアイ）<br>
+                            ee: 黒目
+                        </div>
+                        <div>
+                            <strong>🎨 P座（パイド柄）</strong><br>
+                            PP: <span style="color: #dc3545;">パイド致死</span><br>
+                            Pp: 発現<br>
+                            pp: 発現しない
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h3>🎨 毛色一覧（確実に存在する毛色）</h3>
                 <div class="color-chart" id="colorChart">
                     <!-- 毛色一覧がここに表示されます -->
                 </div>
@@ -404,6 +477,9 @@
                         <input type="radio" name="simulation-mode" value="single"> 
                         指定した1組の遺伝子型ペアで計算
                     </label>
+                    <div style="font-size: 0.85rem; color: #666; margin-top: 8px; padding-left: 20px;">
+                        ※どれを選んで良いかよくわからない場合は、末尾が「--zz」となっているものからお選びください
+                    </div>
                 </div>
 
                 <button class="calc-button" onclick="simulateBreeding()">
@@ -433,178 +509,167 @@
     </div>
 
     <script>
-        // 遺伝子型データベース（CSVの完全版）
-        const genotypeDB = {
-            "bbmmYywwaa": "（仮称）イエロームーンブラック※存在不明",
-            "bbmmyywwaa": "（仮称）クリーミーサファイア・ムーングレーブラック※存在不明",
-            "bbmmyyWwaa": "（仮称）ホワイトムーンブラック※存在不明",
-            "bbmmYywwAA": "イエロームーン",
-            "bbmmYywwAa": "イエロームーン",
-            "bbmmYyww--": "イエロームーン",
-            "bbmmyywwAA": "クリーミーサファイア・ムーングレー",
-            "bbmmyywwAa": "クリーミーサファイア・ムーングレー",
-            "bbmmyyww--": "クリーミーサファイア・ムーングレー",
-            "bbmmyyWwAA": "ホワイトムーン",
-            "bbmmyyWwAa": "ホワイトムーン",
-            "bbmmyyWw--": "ホワイトムーン",
-            "bbmmYyWwAA": "クリーミーラインムーン",
-            "bbmmYyWwAa": "クリーミーラインムーン",
-            "bbmmYyWwaa": "（仮称）クリーミーラインブラック※存在不明",
-            "bbmmYyWw--": "クリーミーラインムーン",
-            "BBMMyyWwaa": "（仮称）パールブラック※存在不明",
-            "BbMMyyWwaa": "（仮称）パールブラック※存在不明",
-            "BbMmyyWwaa": "（仮称）パールブラック※存在不明",
-            "BbMMYywwaa": "（仮称）プディングブラック※存在不明",
-            "BBMMYywwaa": "（仮称）プディングブラック※存在不明",
-            "BbMmYywwaa": "（仮称）プディングブラック※存在不明",
-            "BBMMyywwAA": "ノーマル",
-            "BBMMyywwAa": "ノーマル",
-            "BBMMyyww--": "ノーマル",
-            "BbMMyywwAA": "ノーマル",
-            "BbMMyywwAa": "ノーマル",
-            "BbMMyyww--": "ノーマル",
-            "BbMmyywwAA": "ノーマル",
-            "BbMmyywwAa": "ノーマル",
-            "BbMmyyww--": "ノーマル",
-            "BBMmyywwAA": "ノーマル",
-            "BBMmyywwAa": "ノーマル",
-            "BBMmyywwaa": "ブラックジャンガリアン（ノーマルブラック）",
-            "BBMmyyww--": "ノーマル",
-            "BBMMyyWwAA": "パール",
-            "BBMMyyWwAa": "パール",
-            "BBMMyyWw--": "パール",
-            "BbMMyyWwAA": "パール",
-            "BbMMyyWwAa": "パール",
-            "BbMMyyWw--": "パール",
-            "BbMmyyWwAA": "パール",
-            "BbMmyyWwAa": "パール",
-            "BbMmyyWw--": "パール",
-            "BBMmyyWwAA": "パール",
-            "BBMmyyWwAa": "パール",
-            "BBMmyyWwaa": "（仮称）パールブラック※存在不明",
-            "BBMmyyWw--": "パール",
-            "BBMmYywwAA": "プディング",
-            "BBMMYywwAA": "プディング",
-            "BBMMYywwAa": "プディング",
-            "BBMMYyww--": "プディング",
-            "BbMMYywwAA": "プディング",
-            "BbMMYywwAa": "プディング",
-            "BbMMYyww--": "プディング",
-            "BbMmYywwAA": "プディング",
-            "BbMmYywwAa": "プディング",
-            "BbMmYyww--": "プディング",
-            "BBMmYywwAa": "プディング",
-            "BBMmYywwaa": "（仮称）プディングブラック※存在不明",
-            "BBMmYyww--": "プディング",
-            "BBMMyywwaa": "ブラックジャンガリアン（ノーマルブラック）",
-            "BbMMyywwaa": "ブラックジャンガリアン（ノーマルブラック）",
-            "BbMmyywwaa": "ブラックジャンガリアン（ノーマルブラック）",
-            "BBMMYyWwAA": "クリーミーライン",
-            "BBMMYyWwAa": "クリーミーライン",
-            "BBMMYyWwaa": "（仮称）クリーミーラインブラック※存在不明",
-            "BBMMYyWw--": "クリーミーライン",
-            "BbMMYyWwAA": "クリーミーライン",
-            "BbMMYyWwAa": "クリーミーライン",
-            "BbMMYyWwaa": "（仮称）クリーミーラインブラック※存在不明",
-            "BbMMYyWw--": "クリーミーライン",
-            "BBMmYyWwAA": "クリーミーライン",
-            "BBMmYyWwAa": "クリーミーライン",
-            "BBMmYyWwaa": "（仮称）クリーミーラインブラック※存在不明",
-            "BBMmYyWw--": "クリーミーライン",
-            "BbMmYyWwAA": "クリーミーライン",
-            "BbMmYyWwAa": "クリーミーライン",
-            "BbMmYyWwaa": "（仮称）クリーミーラインブラック※存在不明",
-            "BbMmYyWw--": "クリーミーライン",
-            "bbMMyyWwaa": "（仮称）サファイアパールブラック※存在不明",
-            "bbMmyyWwaa": "（仮称）サファイアパールブラック※存在不明",
-            "bbMMYywwaa": "（仮称）サファイアプディングブラック※存在不明",
-            "bbMmYywwaa": "（仮称）サファイアプディングブラック※存在不明",
-            "bbMMyyWwAA": "サファイアパール",
-            "bbMMyyWwAa": "サファイアパール",
-            "bbMmyyWwAA": "サファイアパール",
-            "bbMmyyWwAa": "サファイアパール",
-            "bbMmyyWw--": "サファイアパール",
-            "bbMMyyWw--": "サファイアパール",
-            "bbMMYywwAA": "サファイアプディング",
-            "bbMMYywwAa": "サファイアプディング",
-            "bbMMYyww--": "サファイアプディング",
-            "bbMmYywwAA": "サファイアプディング",
-            "bbMmYywwAa": "サファイアプディング",
-            "bbMmYyww--": "サファイアプディング",
-            "bbMMyywwAA": "ブルーサファイア",
-            "bbMMyywwAa": "ブルーサファイア",
-            "bbMMyyww--": "ブルーサファイア",
-            "bbMmyywwAA": "ブルーサファイア",
-            "bbMmyywwAa": "ブルーサファイア",
-            "bbMmyyww--": "ブルーサファイア",
-            "bbMMyywwaa": "ロシアンブルー（ブルサファブラック）",
-            "bbMmyywwaa": "ロシアンブルー（ブルサファブラック）",
-            "bbMMYyWwAA": "サファイアクリーミーライン",
-            "bbMMYyWwAa": "サファイアクリーミーライン",
-            "bbMMYyWwaa": "（仮称）サファイアクリーミーライン※存在不明",
-            "bbMMYyWw--": "サファイアクリーミーライン",
-            "bbMmYyWwAA": "サファイアクリーミーライン",
-            "bbMmYyWwAa": "サファイアクリーミーライン",
-            "bbMmYyWwaa": "（仮称）サファイアクリーミーライン※存在不明",
-            "bbMmYyWw--": "サファイアクリーミーライン",
-            "BBmmyyWwaa": "（仮称）ホワイトモカブラック※存在不明",
-            "BbmmyyWwaa": "（仮称）ホワイトモカブラック※存在不明",
-            "BbmmYywwaa": "（仮称）ミルクティーブラック（存在不明）",
-            "BBmmYywwaa": "（仮称）ミルクティーブラック※存在不明",
-            "BBmmyywwaa": "（仮称）モカブラック※存在不明",
-            "Bbmmyywwaa": "（仮称）モカブラック※存在不明",
-            "BBmmyyWw--": "ホワイトモカ",
-            "BbmmyyWw--": "ホワイトモカ",
-            "BBmmyyWwAA": "ホワイトモカ",
-            "BBmmyyWwAa": "ホワイトモカ",
-            "BbmmyyWwAA": "ホワイトモカ",
-            "BbmmyyWwAa": "ホワイトモカ",
-            "BBmmYyww--": "ミルクティー",
-            "BbmmYyww--": "ミルクティー",
-            "BBmmYywwAA": "ミルクティー",
-            "BBmmYywwAa": "ミルクティー",
-            "BbmmYywwAA": "ミルクティー",
-            "BbmmYywwAa": "ミルクティー",
-            "BBmmyyww--": "モカブラウン",
-            "Bbmmyyww--": "モカブラウン",
-            "BBmmyywwAA": "モカブラウン",
-            "BBmmyywwAa": "モカブラウン",
-            "BbmmyywwAA": "モカブラウン",
-            "BbmmyywwAa": "モカブラウン",
-            "BBmmYyWwAA": "クリーミーラインモカ",
-            "BBmmYyWwAa": "クリーミーラインモカ",
-            "BBmmYyWwaa": "（仮称）クリーミーラインモカブラック※存在不明",
-            "BBmmYyWw--": "クリーミーラインモカ",
-            "BbmmYyWwAA": "クリーミーラインモカ",
-            "BbmmYyWwAa": "クリーミーラインモカ",
-            "BbmmYyWwaa": "（仮称）クリーミーラインモカブラック※存在不明",
-            "BbmmYyWw--": "クリーミーラインモカ"
-        };
+        // Z座対応の遺伝子型データベース（効率化版）
+        const genotypeDB = {};
+        
+        // 効率的なデータベース構築関数
+        function buildGenotypeDatabase() {
+            const basePatterns = {
+                // B座, M座, Y座, W座の基本パターン
+                normal: [
+                    ['BB', 'Bb'], ['MM', 'Mm'], ['yy'], ['ww']
+                ],
+                pearl: [
+                    ['BB', 'Bb'], ['MM', 'Mm'], ['yy'], ['Ww']
+                ],
+                pudding: [
+                    ['BB', 'Bb'], ['MM', 'Mm'], ['Yy'], ['ww']
+                ],
+                creamyLine: [
+                    ['BB', 'Bb'], ['MM', 'Mm'], ['Yy'], ['Ww']
+                ],
+                blueSapphire: [
+                    ['bb'], ['MM', 'Mm'], ['yy'], ['ww']
+                ],
+                sapphirePearl: [
+                    ['bb'], ['MM', 'Mm'], ['yy'], ['Ww']
+                ],
+                sapphirePudding: [
+                    ['bb'], ['MM', 'Mm'], ['Yy'], ['ww']
+                ],
+                sapphireCreamyLine: [
+                    ['bb'], ['MM', 'Mm'], ['Yy'], ['Ww']
+                ],
+                moonGrey: [
+                    ['bb'], ['mm'], ['yy'], ['ww']
+                ],
+                moonCreamyLine: [
+                    ['bb'], ['mm'], ['Yy'], ['Ww']
+                ],
+                moonWhite: [
+                    ['bb'], ['mm'], ['yy'], ['Ww']
+                ],
+                moonYellow: [
+                    ['bb'], ['mm'], ['Yy'], ['ww']
+                ],
+                mocaBrown: [
+                    ['BB', 'Bb'], ['mm'], ['yy'], ['ww']
+                ],
+                whiteMoca: [
+                    ['BB', 'Bb'], ['mm'], ['yy'], ['Ww']
+                ],
+                creamyLineMoca: [
+                    ['BB', 'Bb'], ['mm'], ['Yy'], ['Ww']
+                ],
+                milkTea: [
+                    ['BB', 'Bb'], ['mm'], ['Yy'], ['ww']
+                ]
+            };
 
-        // 確実な毛色の順序（存在不明は除く）
-        const confirmedColors = [
-            'ノーマル', 'パール', 'プディング', 'クリーミーライン', 'ブルーサファイア',
-            'サファイアパール', 'サファイアプディング', 'サファイアクリーミーライン',
-            'クリーミーサファイア・ムーングレー', 'クリーミーラインムーン', 'ホワイトムーン',
-            'イエロームーン', 'モカブラウン', 'ホワイトモカ', 'クリーミーラインモカ',
-            'ミルクティー', 'ブラックジャンガリアン（ノーマルブラック）', 'ロシアンブルー（ブルサファブラック）'
+            const colorNames = {
+                normal: 'ノーマル',
+                pearl: 'パール',
+                pudding: 'プディング',
+                creamyLine: 'クリーミーライン',
+                blueSapphire: 'ブルーサファイア',
+                sapphirePearl: 'サファイアパール',
+                sapphirePudding: 'サファイアプディング',
+                sapphireCreamyLine: 'サファイアクリーミーライン',
+                moonGrey: 'クリーミーサファイア・ムーングレー',
+                moonCreamyLine: 'クリーミーラインムーン',
+                moonWhite: 'ホワイトムーン',
+                moonYellow: 'イエロームーン',
+                mocaBrown: 'モカブラウン',
+                whiteMoca: 'ホワイトモカ',
+                creamyLineMoca: 'クリーミーラインモカ',
+                milkTea: 'ミルクティー'
+            };
+
+            const aPatterns = ['AA', 'Aa', 'aa', '--'];  // aaを追加
+            const zPatterns = ['ZZ', 'Zz', 'zz'];
+
+            // 各色パターンに対して遺伝子型を生成
+            Object.keys(basePatterns).forEach(patternKey => {
+                const [bOptions, mOptions, yOptions, wOptions] = basePatterns[patternKey];
+                const colorName = colorNames[patternKey];
+
+                bOptions.forEach(b => {
+                    mOptions.forEach(m => {
+                        yOptions.forEach(y => {
+                            wOptions.forEach(w => {
+                                aPatterns.forEach(a => {
+                                    zPatterns.forEach(z => {
+                                        const genotype = b + m + y + w + a + z;
+                                        
+                                        // ブラック判定: aa + (ZZ or Zz) の場合
+                                        if (a === 'aa' && (z === 'ZZ' || z === 'Zz')) {
+                                            if (patternKey === 'blueSapphire') {
+                                                genotypeDB[genotype] = 'ロシアンブルー（ブルサファブラック）';
+                                            } else {
+                                                genotypeDB[genotype] = 'ブラックジャンガリアン';
+                                            }
+                                        } else {
+                                            genotypeDB[genotype] = colorName;
+                                        }
+                                    });
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+
+            console.log('Generated', Object.keys(genotypeDB).length, 'genotype combinations');
+        }
+
+        // データベースを構築
+        buildGenotypeDatabase();
+
+        // 指定された順序で毛色を並び替え
+        const colorOrder = [
+            'ノーマル',
+            'パール',
+            'プディング',
+            'クリーミーライン',
+            'ブルーサファイア',
+            'サファイアパール',
+            'サファイアプディング',
+            'サファイアクリーミーライン',
+            'クリーミーサファイア・ムーングレー',
+            'クリーミーラインムーン',
+            'ホワイトムーン',
+            'イエロームーン',
+            'モカブラウン',
+            'ホワイトモカ',
+            'クリーミーラインモカ',
+            'ミルクティー',
+            'ブラックジャンガリアン',
+            'ロシアンブルー（ブルサファブラック）'
         ];
 
-        // 毛色別の遺伝子型データベース作成
-        const colorToGenotypes = {};
-        Object.keys(genotypeDB).forEach(genotype => {
-            const coatName = genotypeDB[genotype];
-            if (!colorToGenotypes[coatName]) {
-                colorToGenotypes[coatName] = [];
-            }
-            colorToGenotypes[coatName].push(genotype);
-        });
-
+        // グローバル変数
+        let colorToGenotypes = {};
+        let confirmedColors = [];
         let selectedGenotypeA = null;
         let selectedGenotypeB = null;
 
         // 初期化
         function init() {
+            // 毛色別の遺伝子型データベース作成
+            Object.keys(genotypeDB).forEach(genotype => {
+                const coatName = genotypeDB[genotype];
+                if (!colorToGenotypes[coatName]) {
+                    colorToGenotypes[coatName] = [];
+                }
+                colorToGenotypes[coatName].push(genotype);
+            });
+            
+            // 指定された順序で毛色を整理
+            confirmedColors = colorOrder.filter(color => colorToGenotypes[color] && colorToGenotypes[color].length > 0);
+            
+            console.log('Loaded', Object.keys(genotypeDB).length, 'genotypes');
+            console.log('Available colors:', confirmedColors.length);
+            
             populateColorOptions();
             displayColorChart();
             setupEventListeners();
@@ -619,7 +684,7 @@
                 select.innerHTML = '<option value="">選択してください</option>';
                 
                 confirmedColors.forEach(color => {
-                    if (colorToGenotypes[color]) {
+                    if (colorToGenotypes[color] && colorToGenotypes[color].length > 0) {
                         select.innerHTML += `<option value="${color}">${color}</option>`;
                     }
                 });
@@ -642,7 +707,7 @@
                     
                     colorDiv.innerHTML = `
                         <div class="color-name">${color}</div>
-                        <div style="font-size: 0.75rem; color: #666; margin-top: 10px; line-height: 1.4;">
+                        <div style="font-size: 0.75rem; color: #666; margin-top: 10px; line-height: 1.4; font-family: monospace;">
                             ${displayGenotypes.join('<br>')}${moreText}
                         </div>
                     `;
@@ -802,22 +867,93 @@
                     return;
                 }
                 
-                results = calculateSimpleCross(genotypesA[0], genotypesB[0], eyeA, eyeB, piedA, piedB);
+                results = calculateAllCombinations(genotypesA, genotypesB, eyeA, eyeB, piedA, piedB);
             }
 
             displayBreedingResults(results);
         }
 
-        // シンプルな交配計算
+        // 全組み合わせ計算
+        function calculateAllCombinations(genotypesA, genotypesB, eyeA, eyeB, piedA, piedB) {
+            const limitedGenotypesA = genotypesA.slice(0, 10);
+            const limitedGenotypesB = genotypesB.slice(0, 10);
+            
+            const allResults = {};
+            let totalCombinations = 0;
+
+            limitedGenotypesA.forEach(genotypeA => {
+                limitedGenotypesB.forEach(genotypeB => {
+                    const singleResult = calculateSimpleCross(genotypeA, genotypeB, eyeA, eyeB, piedA, piedB);
+                    
+                    Object.keys(singleResult).forEach(colorKey => {
+                        if (!allResults[colorKey]) {
+                            allResults[colorKey] = {
+                                count: 0,
+                                genotypes: new Set(),
+                                isLethal: singleResult[colorKey].isLethal,
+                                isHealthRisk: singleResult[colorKey].isHealthRisk
+                            };
+                        }
+                        allResults[colorKey].count += parseFloat(singleResult[colorKey].percentage);
+                        if (singleResult[colorKey].genotypes) {
+                            singleResult[colorKey].genotypes.forEach(g => allResults[colorKey].genotypes.add(g));
+                        }
+                    });
+                    totalCombinations++;
+                });
+            });
+
+            const finalResults = {};
+            Object.keys(allResults).forEach(colorKey => {
+                finalResults[colorKey] = {
+                    percentage: (allResults[colorKey].count / totalCombinations).toFixed(1),
+                    genotypes: Array.from(allResults[colorKey].genotypes),
+                    isLethal: allResults[colorKey].isLethal,
+                    isHealthRisk: allResults[colorKey].isHealthRisk
+                };
+            });
+
+            return finalResults;
+        }
+
+        // 類似パターン検索（未知遺伝子型への対処）
+        function findAlternativeColor(unknownGenotype) {
+            // 基本的なパターンマッチングでデータベースから類似のものを探す
+            const keys = Object.keys(genotypeDB);
+            
+            // 完全一致を最初に試す
+            if (genotypeDB[unknownGenotype]) {
+                return genotypeDB[unknownGenotype];
+            }
+            
+            // パターンマッチング：主要な遺伝子座での類似性を探す
+            for (let key of keys) {
+                // B, M, Y, W座が一致するかチェック（A, Z座は柔軟に）
+                if (key.substring(0, 8) === unknownGenotype.substring(0, 8)) {
+                    return genotypeDB[key];
+                }
+            }
+            
+            return null;
+        }
+
+        // シンプルな交配計算（Z座対応・エラーハンドリング強化）
         function calculateSimpleCross(genotypeA, genotypeB, eyeA, eyeB, piedA, piedB) {
-            console.log("Crossing:", genotypeA, "x", genotypeB);
+            console.log('Calculating cross:', genotypeA, 'x', genotypeB);
             
             const gA = parseGenotype(genotypeA);
             const gB = parseGenotype(genotypeB);
             
-            if (!gA.B.length || !gB.B.length) {
-                console.error("Failed to parse genotypes");
-                return {};
+            if (!gA || !gB) {
+                console.error("Failed to parse genotypes:", genotypeA, genotypeB);
+                return {
+                    'エラー': {
+                        percentage: '100.0',
+                        genotypes: ['遺伝子型解析エラー'],
+                        isLethal: false,
+                        isHealthRisk: false
+                    }
+                };
             }
 
             const results = {};
@@ -833,30 +969,46 @@
                     gA.Y.forEach(yA => {
                         gA.W.forEach(wA => {
                             gA.A.forEach(aA => {
-                                eyeGamesA.forEach(eA => {
-                                    piedGamesA.forEach(pA => {
-                                        gB.B.forEach(bB => {
-                                            gB.M.forEach(mB => {
-                                                gB.Y.forEach(yB => {
-                                                    gB.W.forEach(wB => {
-                                                        gB.A.forEach(aB => {
-                                                            eyeGamesB.forEach(eB => {
-                                                                piedGamesB.forEach(pB => {
-                                                                    const childGenotype = makeChildGenotype(
-                                                                        [bA, bB], [mA, mB], [yA, yB], [wA, wB], [aA, aB], [eA, eB], [pA, pB]
-                                                                    );
-                                                                    
-                                                                    if (childGenotype.includes('WW') || childGenotype.includes('PP')) {
-                                                                        const key = '致死';
-                                                                        results[key] = (results[key] || 0) + 1;
-                                                                    } else {
-                                                                        const baseGenotype = childGenotype.substring(0, 10);
-                                                                        const coatName = genotypeDB[baseGenotype];
-                                                                        if (coatName) {
-                                                                            results[coatName] = (results[coatName] || 0) + 1;
-                                                                        }
-                                                                    }
-                                                                    totalCount++;
+                                gA.Z.forEach(zA => {
+                                    eyeGamesA.forEach(eA => {
+                                        piedGamesA.forEach(pA => {
+                                            gB.B.forEach(bB => {
+                                                gB.M.forEach(mB => {
+                                                    gB.Y.forEach(yB => {
+                                                        gB.W.forEach(wB => {
+                                                            gB.A.forEach(aB => {
+                                                                gB.Z.forEach(zB => {
+                                                                    eyeGamesB.forEach(eB => {
+                                                                        piedGamesB.forEach(pB => {
+                                                                            const childGenotype = makeChildGenotype(
+                                                                                [bA, bB], [mA, mB], [yA, yB], [wA, wB], [aA, aB], [zA, zB], [eA, eB], [pA, pB]
+                                                                            );
+                                                                            
+                                                                            if (childGenotype.includes('WW') || childGenotype.includes('PP')) {
+                                                                                const key = '致死';
+                                                                                results[key] = (results[key] || 0) + 1;
+                                                                            } else {
+                                                                                const baseGenotype = childGenotype.substring(0, 12);
+                                                                                const coatName = genotypeDB[baseGenotype];
+                                                                                
+                                                                                if (coatName) {
+                                                                                    const fullColorName = generateFullColorName(coatName, childGenotype);
+                                                                                    results[fullColorName] = (results[fullColorName] || 0) + 1;
+                                                                                } else {
+                                                                                    // 基本遺伝子型が見つからない場合でも、類似パターンを探す
+                                                                                    const alternativeColor = findAlternativeColor(baseGenotype);
+                                                                                    if (alternativeColor) {
+                                                                                        const fullColorName = generateFullColorName(alternativeColor, childGenotype);
+                                                                                        results[fullColorName] = (results[fullColorName] || 0) + 1;
+                                                                                    } else {
+                                                                                        const unknownKey = `未知の遺伝子型: ${baseGenotype}`;
+                                                                                        results[unknownKey] = (results[unknownKey] || 0) + 1;
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                            totalCount++;
+                                                                        });
+                                                                    });
                                                                 });
                                                             });
                                                         });
@@ -872,21 +1024,63 @@
                 });
             });
 
+            console.log('Total combinations calculated:', totalCount);
+            console.log('Results found:', Object.keys(results).length);
+
             const finalResults = {};
             Object.keys(results).forEach(color => {
+                // 遺伝子型の例を収集
+                const exampleGenotypes = [];
+                if (color === '致死') {
+                    exampleGenotypes.push('WW または PP');
+                } else if (color.startsWith('未知の遺伝子型:')) {
+                    exampleGenotypes.push(color.replace('未知の遺伝子型: ', ''));
+                } else {
+                    // 基本毛色の代表的な遺伝子型を取得
+                    const baseColorName = color.split('・')[0]; // パイド・目の色を除いた基本色
+                    const genotypesForColor = colorToGenotypes[baseColorName] || [];
+                    if (genotypesForColor.length > 0) {
+                        exampleGenotypes.push(...genotypesForColor.slice(0, 2));
+                    }
+                }
+
                 finalResults[color] = {
                     percentage: ((results[color] / totalCount) * 100).toFixed(1),
-                    genotypes: [color === '致死' ? '致死遺伝子' : color],
+                    genotypes: exampleGenotypes,
                     isLethal: color === '致死',
-                    isHealthRisk: false
+                    isHealthRisk: color.includes('YY')
                 };
             });
 
             return finalResults;
         }
 
-        // 子の遺伝子型作成
-        function makeChildGenotype(B, M, Y, W, A, E, P) {
+        // 完全な毛色名を生成（パイド・目の色込み）
+        function generateFullColorName(baseColorName, fullGenotype) {
+            let colorName = baseColorName;
+            
+            // Z座対応：遺伝子型の構造 bbMMYywwaaZZ + EE + pp = 16文字
+            if (fullGenotype.length >= 14) {
+                const eyePart = fullGenotype.substring(12, 14);
+                if (eyePart === 'EE') {
+                    colorName += '・赤目';
+                } else if (eyePart.includes('E')) {
+                    colorName += '・ブドウ目';
+                }
+            }
+            
+            if (fullGenotype.length >= 16) {
+                const piedPart = fullGenotype.substring(14, 16);
+                if (piedPart.includes('P')) {
+                    colorName += '・パイド';
+                }
+            }
+            
+            return colorName;
+        }
+
+        // 子の遺伝子型作成（Z座対応）
+        function makeChildGenotype(B, M, Y, W, A, Z, E, P) {
             const sortAlleles = (alleles) => {
                 return alleles.sort((a, b) => {
                     if (a === b) return 0;
@@ -900,18 +1094,23 @@
             const ySorted = sortAlleles([...Y]);
             const wSorted = sortAlleles([...W]);
             const aSorted = sortAlleles([...A]);
+            const zSorted = sortAlleles([...Z]);
             const eSorted = sortAlleles([...E]);
             const pSorted = sortAlleles([...P]);
 
             return bSorted.join('') + mSorted.join('') + ySorted.join('') + 
-                   wSorted.join('') + aSorted.join('') + eSorted.join('') + pSorted.join('');
+                   wSorted.join('') + aSorted.join('') + zSorted.join('') +
+                   eSorted.join('') + pSorted.join('');
         }
 
-        // 遺伝子型解析
+        // 遺伝子型解析（Z座対応・--記号対応）
         function parseGenotype(genotype) {
             const cleanGenotype = genotype.replace(/\s+/g, '');
-            const genes = { B: [], M: [], Y: [], W: [], A: [] };
+            const genes = { B: [], M: [], Y: [], W: [], A: [], Z: [] };
             
+            console.log('Parsing genotype:', cleanGenotype); // デバッグ用
+            
+            // 12文字の遺伝子型を解析
             const bPart = cleanGenotype.substring(0, 2);
             if (bPart === 'BB') genes.B = ['B', 'B'];
             else if (bPart === 'Bb') genes.B = ['B', 'b'];
@@ -938,6 +1137,21 @@
             else if (aPart === 'aa') genes.A = ['a', 'a'];
             else if (aPart === '--') genes.A = ['-', '-'];
 
+            const zPart = cleanGenotype.substring(10, 12);
+            if (zPart === 'ZZ') genes.Z = ['Z', 'Z'];
+            else if (zPart === 'Zz') genes.Z = ['Z', 'z'];
+            else if (zPart === 'zz') genes.Z = ['z', 'z'];
+
+            // 解析結果を確認
+            console.log('Parsed genes:', genes);
+            
+            // すべての遺伝子座が正しく解析されているかチェック
+            const allParsed = Object.values(genes).every(arr => arr.length === 2);
+            if (!allParsed) {
+                console.error('Failed to parse all gene loci for genotype:', cleanGenotype);
+                return null;
+            }
+
             return genes;
         }
 
@@ -951,14 +1165,12 @@
             }
 
             const combinations = [];
-            const testColors = ['ノーマル', 'パール', 'プディング', 'クリーミーライン', 'ブルーサファイア'];
             
-            testColors.forEach(colorA => {
-                testColors.forEach(colorB => {
+            confirmedColors.forEach(colorA => {
+                confirmedColors.forEach(colorB => {
                     if (colorToGenotypes[colorA] && colorToGenotypes[colorB]) {
                         try {
-                            // 致死遺伝子が発生する組み合わせをスキップ
-                            if (canProduceLethal(colorA, colorB)) {
+                            if (canProduceLethal(colorA, colorB) || canProduceHealthRisk(colorA, colorB)) {
                                 return;
                             }
                             
@@ -982,7 +1194,8 @@
                 });
             });
 
-            displayReverseResults(targetColor, combinations.slice(0, 5));
+            combinations.sort((a, b) => parseFloat(b.probability) - parseFloat(a.probability));
+            displayReverseResults(targetColor, combinations.slice(0, 15));
         }
 
         // 結果表示
@@ -990,6 +1203,14 @@
             const resultsDiv = document.getElementById('breeding-results');
             resultsDiv.innerHTML = '<div class="results"><h4>🧬 子の毛色 結果:</h4></div>';
             const resultsContainer = resultsDiv.querySelector('.results');
+
+            if (Object.keys(results).length === 0) {
+                const noResultDiv = document.createElement('div');
+                noResultDiv.className = 'error-message';
+                noResultDiv.textContent = 'この組み合わせでは子が生まれません（計算エラーまたはデータ不足）';
+                resultsContainer.appendChild(noResultDiv);
+                return;
+            }
 
             Object.keys(results).forEach(color => {
                 const result = results[color];
@@ -1011,22 +1232,20 @@
                     statusText = '<div style="font-size: 0.9rem; color: #6f42c1;">※ 存在不明の毛色</div>';
                 }
                 
+                // 遺伝子型表示
                 let genotypeDisplay = '';
-                if (result.isLethal) {
-                    genotypeDisplay = '致死遺伝子';
-                } else {
-                    const genotypesForColor = colorToGenotypes[color] || [];
-                    const displayGenotypes = genotypesForColor.slice(0, 4);
-                    const moreText = genotypesForColor.length > 4 ? ' など' : '';
-                    genotypeDisplay = displayGenotypes.join(' / ') + moreText;
+                if (result.genotypes && result.genotypes.length > 0) {
+                    const displayGenotypes = result.genotypes.slice(0, 3);
+                    const moreText = result.genotypes.length > 3 ? ' など' : '';
+                    genotypeDisplay = `<div style="font-size: 0.85rem; color: #666; margin-top: 5px; font-family: monospace;">
+                        遺伝子型例: ${displayGenotypes.join(', ')}${moreText}
+                    </div>`;
                 }
                 
                 resultDiv.innerHTML = `
                     <strong>${color}: ${result.percentage}%</strong>
                     ${statusText}
-                    <div style="font-size: 0.9rem; color: #666; margin-top: 5px;">
-                        遺伝子型: ${genotypeDisplay}
-                    </div>
+                    ${genotypeDisplay}
                 `;
                 
                 resultsContainer.appendChild(resultDiv);
