@@ -317,10 +317,10 @@
         
         <div class="warning">
             <strong>⚠️ 注意事項</strong><br>
-            このシミュレーターは、ジャンガリアンハムスターの毛色や遺伝子に関する「非公式」な情報をもとに作成しています。<br>
-            表示される遺伝子型や毛色の結果は、あくまで仮のものであり、医学的・学術的に証明された内容ではありません。<br>
-            交配する際のあくまで参考程度に、もしくはこんな毛色が出る可能性があるんだーと楽しむ程度にご活用ください。<br>
-            一方で、致死遺伝子による交配は、致死と出てくるようになっています。致死遺伝子の可能性がある交配を避けるためにもお役立ていただけたら嬉しいです。
+            このシミュレーターは、ジャンガリアンハムスターの毛色や遺伝子に関する<strong>非公式の情報（ブリーダーさんや視聴者の方々からの情報を含む）、私自身の観察・経験、国内外の文献等を参考にした推定モデル</strong>に基づいて作成されています。<br>
+            表示される毛色や遺伝子型の結果は、<strong>あくまでシミュレーション上の予測であり、医学的・学術的に証明されたものではありません</strong>。<br>
+            繁殖の目安として、あるいは「こんな毛色の子が生まれるかも？」と楽しむ参考資料としてご活用ください。<br>
+            なお、<strong>致死遺伝子の組み合わせについては「致死」と表示されます</strong>。そのような交配を避ける一助になれば嬉しいです。
         </div>
 
         <div class="tabs">
@@ -470,8 +470,8 @@
 
                 <div class="form-group">
                     <label>
-                        <input type="radio" name="simulation-mode" value="all" checked> 
-                        全遺伝子型の組み合わせから自動シミュレーション
+                        <input type="radio" name="simulation-mode" value="representative" checked> 
+                        代表的な遺伝子型を自動選択してシミュレーション
                     </label>
                     <label>
                         <input type="radio" name="simulation-mode" value="single"> 
@@ -867,22 +867,50 @@
                     return;
                 }
                 
-                results = calculateAllCombinations(genotypesA, genotypesB, eyeA, eyeB, piedA, piedB);
+                // 代表的な遺伝子型を選択
+                const representativeGenotypesA = selectRepresentativeGenotypes(colorA);
+                const representativeGenotypesB = selectRepresentativeGenotypes(colorB);
+                
+                results = calculateRepresentativeCombinations(representativeGenotypesA, representativeGenotypesB, eyeA, eyeB, piedA, piedB);
             }
 
             displayBreedingResults(results);
         }
 
-        // 全組み合わせ計算
-        function calculateAllCombinations(genotypesA, genotypesB, eyeA, eyeB, piedA, piedB) {
-            const limitedGenotypesA = genotypesA.slice(0, 10);
-            const limitedGenotypesB = genotypesB.slice(0, 10);
+        // 代表的な遺伝子型を選択
+        function selectRepresentativeGenotypes(color) {
+            const genotypes = colorToGenotypes[color] || [];
+            
+            // ブラック系の場合は最大3つまで
+            if (color.includes('ブラック') || color.includes('ロシアンブルー')) {
+                return genotypes.slice(0, 3);
+            }
+            
+            // 通常毛色の場合は末尾が「--zz」のものをすべて選択
+            const normalGenotypes = genotypes.filter(g => g.endsWith('--zz'));
+            if (normalGenotypes.length > 0) {
+                return normalGenotypes; // --zzで終わるものすべて
+            }
+            
+            // --zzがない場合は--Zzをすべて選択
+            const carrierGenotypes = genotypes.filter(g => g.endsWith('--Zz'));
+            if (carrierGenotypes.length > 0) {
+                return carrierGenotypes;
+            }
+            
+            // それでもない場合は最初の3つまで
+            return genotypes.slice(0, 3);
+        }
+
+        // 代表的な組み合わせ計算（軽量版）
+        function calculateRepresentativeCombinations(genotypesA, genotypesB, eyeA, eyeB, piedA, piedB) {
+            console.log('Representative calculation:', genotypesA.length, 'x', genotypesB.length, 'combinations');
             
             const allResults = {};
             let totalCombinations = 0;
 
-            limitedGenotypesA.forEach(genotypeA => {
-                limitedGenotypesB.forEach(genotypeB => {
+            genotypesA.forEach(genotypeA => {
+                genotypesB.forEach(genotypeB => {
                     const singleResult = calculateSimpleCross(genotypeA, genotypeB, eyeA, eyeB, piedA, piedB);
                     
                     Object.keys(singleResult).forEach(colorKey => {
@@ -913,6 +941,7 @@
                 };
             });
 
+            console.log('Representative calculation completed with', totalCombinations, 'total combinations');
             return finalResults;
         }
 
