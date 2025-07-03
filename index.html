@@ -601,6 +601,7 @@
                                 aPatterns.forEach(a => {
                                     zPatterns.forEach(z => {
                                         const genotype = b + m + y + w + a + z;
+                                        console.log('Generated genotype:', genotype); // デバッグ用
                                         
                                         // ブラック判定: aa + (ZZ or Zz) の場合
                                         if (a === 'aa' && (z === 'ZZ' || z === 'Zz')) {
@@ -878,7 +879,7 @@
             displayBreedingResults(results);
         }
 
-        // 代表的な遺伝子型を選択
+        // 代表的な遺伝子型を選択（元の仕様に戻す）
         function selectRepresentativeGenotypes(color) {
             const genotypes = colorToGenotypes[color] || [];
             
@@ -1109,7 +1110,7 @@
             return colorName;
         }
 
-        // 子の遺伝子型作成（Z座対応）
+        // 子の遺伝子型作成（Z座対応・順序修正）
         function makeChildGenotype(B, M, Y, W, A, Z, E, P) {
             const sortAlleles = (alleles) => {
                 return alleles.sort((a, b) => {
@@ -1119,6 +1120,7 @@
                 });
             };
 
+            // 正しい順序でソート：B→M→Y→W→A→Z→E→P
             const bSorted = sortAlleles([...B]);
             const mSorted = sortAlleles([...M]);
             const ySorted = sortAlleles([...Y]);
@@ -1128,6 +1130,7 @@
             const eSorted = sortAlleles([...E]);
             const pSorted = sortAlleles([...P]);
 
+            // 正しい順序で結合：BBMMYYWWAAZZ + EE + PP
             return bSorted.join('') + mSorted.join('') + ySorted.join('') + 
                    wSorted.join('') + aSorted.join('') + zSorted.join('') +
                    eSorted.join('') + pSorted.join('');
@@ -1185,7 +1188,7 @@
             return genes;
         }
 
-        // 逆引き検索
+        // 逆引き検索（プログレッシブ処理版）
         function reverseSearch() {
             const targetColor = document.getElementById('target-color').value;
             
@@ -1194,38 +1197,140 @@
                 return;
             }
 
+            // 結果表示エリアを初期化して進行状況を表示
+            const resultsDiv = document.getElementById('reverse-results');
+            resultsDiv.innerHTML = `
+                <div class="results">
+                    <h4>🔍 検索中...</h4>
+                    <p>親の組み合わせを検索しています。しばらくお待ちください。</p>
+                </div>
+            `;
+
             const combinations = [];
+            let currentIndex = 0;
+            const colorPairs = [];
             
+            // 手に入りやすい毛色リスト
+            const easyToGetColors = [
+                'ノーマル', 'パール', 'ブルーサファイア', 'プディング', 
+                'クリーミーライン', 'サファイアプディング（ミルクティー）', 
+                'クリーミーラインサファイア', 'モカブラウン'
+            ];
+            
+            // 手に入りやすい毛色を優先的に配置
+            const prioritizedPairs = [];
+            const otherPairs = [];
+            
+            // 検索対象のペアを事前に作成（優先度別に分類）
             confirmedColors.forEach(colorA => {
                 confirmedColors.forEach(colorB => {
                     if (colorToGenotypes[colorA] && colorToGenotypes[colorB]) {
-                        try {
-                            if (canProduceLethal(colorA, colorB) || canProduceHealthRisk(colorA, colorB)) {
-                                return;
-                            }
+                        // 致死・健康リスクの組み合わせは除外
+                        const hasLethal = canProduceLethal(colorA, colorB);
+                        const hasHealthRisk = canProduceHealthRisk(colorA, colorB);
+                        
+                        if (!hasLethal && !hasHealthRisk) {
+                            // 手に入りやすい毛色が含まれているかチェック
+                            const hasEasyColor = easyToGetColors.includes(colorA) || easyToGetColors.includes(colorB);
                             
-                            const results = calculateSimpleCross(
-                                colorToGenotypes[colorA][0], 
-                                colorToGenotypes[colorB][0], 
-                                'ee', 'ee', 'pp', 'pp'
-                            );
-                            
-                            if (results[targetColor] && parseFloat(results[targetColor].percentage) > 0) {
-                                combinations.push({
-                                    parentA: colorA,
-                                    parentB: colorB,
-                                    probability: results[targetColor].percentage
-                                });
+                            if (hasEasyColor) {
+                                prioritizedPairs.push([colorA, colorB]);
+                            } else {
+                                otherPairs.push([colorA, colorB]);
                             }
-                        } catch (error) {
-                            console.log("Error with combination:", colorA, "x", colorB);
                         }
                     }
                 });
             });
+            
+            // 優先ペアを先に、その他を後に配置
+            const allPairs = [...prioritizedPairs, ...otherPairs];
+            console.log(`Search plan: ${prioritizedPairs.length} priority pairs, ${otherPairs.length} other pairs`);
 
-            combinations.sort((a, b) => parseFloat(b.probability) - parseFloat(a.probability));
-            displayReverseResults(targetColor, combinations.slice(0, 15));
+            // プログレッシブ処理関数（早期終了対応）
+            function processNextBatch() {
+                const batchSize = 20; // 一度に処理する組み合わせ数
+                const endIndex = Math.min(currentIndex + batchSize, allPairs.length);
+                
+                for (let i = currentIndex; i < endIndex; i++) {
+                    const [colorA, colorB] = allPairs[i];
+                    
+                    try {
+                        // 代表的な遺伝子型を選択（逆引き用：複数対応）
+                        const representativesA = selectRepresentativeGenotypes(colorA);
+                        const representativesB = selectRepresentativeGenotypes(colorB);
+                        
+                        // 各組み合わせをチェック
+                        let foundTarget = false;
+                        representativesA.forEach(genotypeA => {
+                            representativesB.forEach(genotypeB => {
+                                if (!foundTarget) {
+                                    const results = calculateSimpleCross(
+                                        genotypeA, 
+                                        genotypeB, 
+                                        'ee', 'ee', 'pp', 'pp'
+                                    );
+                                    
+                                    if (results[targetColor] && parseFloat(results[targetColor].percentage) > 0) {
+                                        combinations.push({
+                                            parentA: colorA,
+                                            parentB: colorB,
+                                            probability: results[targetColor].percentage
+                                        });
+                                        foundTarget = true; // 一度見つかったら他の組み合わせはスキップ
+                                    }
+                                }
+                            });
+                        });
+                        
+                        // 手に入りやすい毛色の組み合わせが10件見つかったら早期終了
+                        // ただし、ノーマルとの組み合わせは最大3件まで制限
+                        const easyColorCombinations = combinations.filter(combo => 
+                            easyToGetColors.includes(combo.parentA) || easyToGetColors.includes(combo.parentB)
+                        );
+                        
+                        const normalCombinations = combinations.filter(combo =>
+                            combo.parentA === 'ノーマル' || combo.parentB === 'ノーマル'
+                        );
+                        
+                        // 早期終了条件：実用的な組み合わせ10件 かつ ノーマル組み合わせが3件以上ある場合はバランスチェック
+                        if (easyColorCombinations.length >= 10) {
+                            if (normalCombinations.length <= 3 || easyColorCombinations.length >= 15) {
+                                console.log(`Early termination: Found ${easyColorCombinations.length} easy-color combinations (${normalCombinations.length} with Normal)`);
+                                combinations.sort((a, b) => parseFloat(b.probability) - parseFloat(a.probability));
+                                displayReverseResults(targetColor, combinations.slice(0, 15));
+                                return;
+                            }
+                        }
+                    } catch (error) {
+                        console.log("Error with combination:", colorA, "x", colorB);
+                    }
+                }
+                
+                currentIndex = endIndex;
+                
+                // 進行状況を更新
+                const progress = Math.round((currentIndex / allPairs.length) * 100);
+                
+                resultsDiv.innerHTML = `
+                    <div class="results">
+                        <h4>🔍 検索中... ${progress}%</h4>
+                        <p>親の組み合わせを検索しています。</p>
+                    </div>
+                `;
+                
+                // まだ処理が残っている場合は次のバッチを非同期で処理
+                if (currentIndex < allPairs.length) {
+                    setTimeout(processNextBatch, 10); // 10ms待機してUIをブロックしない
+                } else {
+                    // 処理完了：全組み合わせを検索してから結果表示
+                    combinations.sort((a, b) => parseFloat(b.probability) - parseFloat(a.probability));
+                    displayReverseResults(targetColor, combinations.slice(0, 15));
+                }
+            }
+            
+            // 処理開始
+            setTimeout(processNextBatch, 10);
         }
 
         // 結果表示
@@ -1298,7 +1403,7 @@
             resultsDiv.innerHTML = `
                 <div class="results">
                     <h4>🐹 ${targetColor} の赤ちゃんが欲しい場合</h4>
-                    <p>→ 親の組み合わせ例：</p>
+                    <p>→ 親の組み合わせ例（一部）：</p>
                 </div>
             `;
             
