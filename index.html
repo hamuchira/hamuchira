@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ジャンガリアンハムスター毛色シミュレーター</title>
+    <title>ジャンガリアンハムスター毛色シミュレーター（E座・M座対応版）</title>
     <link rel="icon" type="image/png" sizes="48x48" href="favicon.png">
     <style>
         * {
@@ -333,11 +333,11 @@
         <!-- 毛色一覧タブ -->
         <div id="color-list" class="tab-content active">
             <div class="section">
-                <h3>🧬 遺伝子の基礎知識（Z座対応版）</h3>
+                <h3>🧬 遺伝子の基礎知識（E座・M座対応版）</h3>
                 <div style="background: linear-gradient(135deg, #fff9e6 0%, #ffebcd 100%); border: 2px solid #ffd700; border-radius: 15px; padding: 15px; margin-bottom: 15px; font-size: 0.85rem; color: #8b4513;">
                     <strong>⚠️ 注意</strong><br>
                     ※遺伝子記号は便宜上設定したもので、学術的に定められているものではありません。<br>
-                    Z座の追加により、遺伝子型は12文字（BBMMYYWWAAZZ座）になりました。
+                    <strong>🆕 目の色遺伝システムが変更されました：E座とM座の複合制御に対応。</strong>
                 </div>
                 <div style="background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%); border: 2px solid #a3cff1; border-radius: 10px; padding: 15px; margin-bottom: 20px; font-size: 0.9rem; line-height: 1.6;">
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px;">
@@ -379,11 +379,18 @@
                             zz: ブラック発現しない<br>
                             <small>※A座がaaの時のみ</small>
                         </div>
-                        <div>
-                            <strong>👁️ E座（目の色・不完全優性）</strong><br>
-                            EE: 赤目<br>
-                            Ee: ブドウ目（=ルビーアイ）<br>
-                            ee: 黒目
+                        <div style="grid-column: 1 / -1; background: linear-gradient(135deg, #ffe8f0 0%, #ffd4e5 100%); border: 2px solid #ff69b4; border-radius: 10px; padding: 15px;">
+                            <strong>👁️ 🆕 E座・M座（目の色・複合制御システム）</strong><br>
+                            <div style="margin-left: 10px; margin-top: 8px;">
+                                <strong>EE:</strong> 黒目（100%）※M座は関係なし<br>
+                                <strong>ee:</strong> 赤目（100%）※M座は関係なし<br>
+                                <strong>Ee + MM:</strong> 黒目（100%）<br>
+                                <strong>Ee + Mm:</strong> 黒目（100%）<br>
+                                <strong>Ee + mm:</strong> ブドウ目（100%）
+                            </div>
+                            <div style="margin-top: 10px; font-size: 0.85em; color: #8b4513;">
+                                ※ブドウ目が出るのはEe + mmの場合のみ！とても希少です
+                            </div>
                         </div>
                         <div>
                             <strong>🎨 P座（パイド柄）</strong><br>
@@ -420,9 +427,9 @@
                         <div class="form-group">
                             <label>目の色:</label>
                             <select id="parentA-eye">
-                                <option value="ee">黒目 (ee)</option>
+                                <option value="EE">黒目 (EE)</option>
                                 <option value="Ee">ブドウ目/ルビーアイ (Ee)</option>
-                                <option value="EE">赤目 (EE)</option>
+                                <option value="ee">赤目 (ee)</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -444,9 +451,9 @@
                         <div class="form-group">
                             <label>目の色:</label>
                             <select id="parentB-eye">
-                                <option value="ee">黒目 (ee)</option>
+                                <option value="EE">黒目 (EE)</option>
                                 <option value="Ee">ブドウ目/ルビーアイ (Ee)</option>
-                                <option value="EE">赤目 (EE)</option>
+                                <option value="ee">赤目 (ee)</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -586,7 +593,7 @@
                 milkTea: 'イエローモカ'
             };
 
-            const aPatterns = ['AA', 'Aa', 'aa', '--'];  // aaを追加
+            const aPatterns = ['AA', 'Aa', 'aa', '--'];
             const zPatterns = ['ZZ', 'Zz', 'zz'];
 
             // 各色パターンに対して遺伝子型を生成
@@ -601,7 +608,6 @@
                                 aPatterns.forEach(a => {
                                     zPatterns.forEach(z => {
                                         const genotype = b + m + y + w + a + z;
-                                        console.log('Generated genotype:', genotype); // デバッグ用
                                         
                                         // ブラック判定: aa + (ZZ or Zz) の場合
                                         if (a === 'aa' && (z === 'ZZ' || z === 'Zz')) {
@@ -654,6 +660,35 @@
         let confirmedColors = [];
         let selectedGenotypeA = null;
         let selectedGenotypeB = null;
+
+        // E座とM座による目の色決定関数（修正版）
+        function determineEyeColor(eGenotype, mGenotype) {
+            console.log('Determining eye color for:', eGenotype, mGenotype);
+            
+            // EEは必ず黒目（M座は関係なし）
+            if (eGenotype === 'EE') {
+                return { color: '黒目', probability: 1.0 };
+            }
+            
+            // eeは必ず赤目（M座は関係なし）
+            if (eGenotype === 'ee') {
+                return { color: '赤目', probability: 1.0 };
+            }
+            
+            // Eeの場合はM座によって決まる
+            if (eGenotype === 'Ee') {
+                if (mGenotype === 'MM') {
+                    return { color: '黒目', probability: 1.0 };
+                } else if (mGenotype === 'Mm') {
+                    return { color: '黒目', probability: 1.0 };
+                } else if (mGenotype === 'mm') {
+                    return { color: 'ブドウ目', probability: 1.0 };
+                }
+            }
+            
+            // デフォルト（エラー）
+            return { color: '黒目', probability: 1.0 };
+        }
 
         // 初期化
         function init() {
@@ -879,7 +914,7 @@
             displayBreedingResults(results);
         }
 
-        // 代表的な遺伝子型を選択（元の仕様に戻す）
+        // 代表的な遺伝子型を選択
         function selectRepresentativeGenotypes(color) {
             const genotypes = colorToGenotypes[color] || [];
             
@@ -891,7 +926,7 @@
             // 通常毛色の場合は末尾が「--zz」のものをすべて選択
             const normalGenotypes = genotypes.filter(g => g.endsWith('--zz'));
             if (normalGenotypes.length > 0) {
-                return normalGenotypes; // --zzで終わるものすべて
+                return normalGenotypes;
             }
             
             // --zzがない場合は--Zzをすべて選択
@@ -904,7 +939,7 @@
             return genotypes.slice(0, 3);
         }
 
-        // 代表的な組み合わせ計算（軽量版）
+        // 代表的な組み合わせ計算
         function calculateRepresentativeCombinations(genotypesA, genotypesB, eyeA, eyeB, piedA, piedB) {
             console.log('Representative calculation:', genotypesA.length, 'x', genotypesB.length, 'combinations');
             
@@ -947,30 +982,9 @@
             return finalResults;
         }
 
-        // 類似パターン検索（未知遺伝子型への対処）
-        function findAlternativeColor(unknownGenotype) {
-            // 基本的なパターンマッチングでデータベースから類似のものを探す
-            const keys = Object.keys(genotypeDB);
-            
-            // 完全一致を最初に試す
-            if (genotypeDB[unknownGenotype]) {
-                return genotypeDB[unknownGenotype];
-            }
-            
-            // パターンマッチング：主要な遺伝子座での類似性を探す
-            for (let key of keys) {
-                // B, M, Y, W座が一致するかチェック（A, Z座は柔軟に）
-                if (key.substring(0, 8) === unknownGenotype.substring(0, 8)) {
-                    return genotypeDB[key];
-                }
-            }
-            
-            return null;
-        }
-
-        // シンプルな交配計算（Z座対応・エラーハンドリング強化）
+        // シンプルな交配計算（E座・M座対応版）
         function calculateSimpleCross(genotypeA, genotypeB, eyeA, eyeB, piedA, piedB) {
-            console.log('Calculating cross:', genotypeA, 'x', genotypeB);
+            console.log('Calculating cross with new eye system:', genotypeA, 'x', genotypeB);
             
             const gA = parseGenotype(genotypeA);
             const gB = parseGenotype(genotypeB);
@@ -1011,30 +1025,39 @@
                                                                 gB.Z.forEach(zB => {
                                                                     eyeGamesB.forEach(eB => {
                                                                         piedGamesB.forEach(pB => {
-                                                                            const childGenotype = makeChildGenotype(
-                                                                                [bA, bB], [mA, mB], [yA, yB], [wA, wB], [aA, aB], [zA, zB], [eA, eB], [pA, pB]
+                                                                            // 子の遺伝子型を作成
+                                                                            const childCoatGenotype = makeChildGenotype(
+                                                                                [bA, bB], [mA, mB], [yA, yB], [wA, wB], [aA, aB], [zA, zB]
                                                                             );
+                                                                            const childEyeGenotype = makeChildEyeGenotype([eA, eB]);
+                                                                            const childPiedGenotype = makeChildPiedGenotype([pA, pB]);
                                                                             
-                                                                            if (childGenotype.includes('WW') || childGenotype.includes('PP')) {
+                                                                            // 致死判定
+                                                                            if (childCoatGenotype.includes('WW') || childPiedGenotype.includes('PP')) {
                                                                                 const key = '致死';
                                                                                 results[key] = (results[key] || 0) + 1;
                                                                             } else {
-                                                                                const baseGenotype = childGenotype.substring(0, 12);
-                                                                                const coatName = genotypeDB[baseGenotype];
+                                                                                // 毛色決定
+                                                                                const coatName = genotypeDB[childCoatGenotype];
                                                                                 
                                                                                 if (coatName) {
-                                                                                    const fullColorName = generateFullColorName(coatName, childGenotype);
+                                                                                    // E座とM座による目の色決定（新システム）
+                                                                                    const mGenotype = childCoatGenotype.substring(2, 4);
+                                                                                    
+                                                                                    // 完全な色名生成
+                                                                                    const fullColorName = generateFullColorNameWithNewEyeSystem(
+                                                                                        coatName, 
+                                                                                        childEyeGenotype, 
+                                                                                        mGenotype, 
+                                                                                        childPiedGenotype
+                                                                                    );
+                                                                                    
+                                                                                    // 修正版では確率的分割は不要（すべて確定的）
                                                                                     results[fullColorName] = (results[fullColorName] || 0) + 1;
                                                                                 } else {
-                                                                                    // 基本遺伝子型が見つからない場合でも、類似パターンを探す
-                                                                                    const alternativeColor = findAlternativeColor(baseGenotype);
-                                                                                    if (alternativeColor) {
-                                                                                        const fullColorName = generateFullColorName(alternativeColor, childGenotype);
-                                                                                        results[fullColorName] = (results[fullColorName] || 0) + 1;
-                                                                                    } else {
-                                                                                        const unknownKey = `未知の遺伝子型: ${baseGenotype}`;
-                                                                                        results[unknownKey] = (results[unknownKey] || 0) + 1;
-                                                                                    }
+                                                                                    // 未知の遺伝子型処理
+                                                                                    const unknownKey = `未知の遺伝子型: ${childCoatGenotype}`;
+                                                                                    results[unknownKey] = (results[unknownKey] || 0) + 1;
                                                                                 }
                                                                             }
                                                                             totalCount++;
@@ -1086,32 +1109,33 @@
             return finalResults;
         }
 
-        // 完全な毛色名を生成（パイド・目の色込み）
-        function generateFullColorName(baseColorName, fullGenotype) {
+        // 新しい目の色システムに対応した完全な毛色名生成（修正版）
+        function generateFullColorNameWithNewEyeSystem(baseColorName, eyeGenotype, mGenotype, piedGenotype) {
             let colorName = baseColorName;
             
-            // Z座対応：遺伝子型の構造 bbMMYywwaaZZ + EE + pp = 16文字
-            if (fullGenotype.length >= 14) {
-                const eyePart = fullGenotype.substring(12, 14);
-                if (eyePart === 'EE') {
-                    colorName += '・赤目';
-                } else if (eyePart.includes('E')) {
+            // E座とM座による目の色決定（修正版）
+            if (eyeGenotype === 'EE') {
+                colorName += '・黒目';
+            } else if (eyeGenotype === 'ee') {
+                colorName += '・赤目';
+            } else if (eyeGenotype === 'Ee') {
+                if (mGenotype === 'MM' || mGenotype === 'Mm') {
+                    colorName += '・黒目';
+                } else if (mGenotype === 'mm') {
                     colorName += '・ブドウ目';
                 }
             }
             
-            if (fullGenotype.length >= 16) {
-                const piedPart = fullGenotype.substring(14, 16);
-                if (piedPart.includes('P')) {
-                    colorName += '・パイド';
-                }
+            // パイド判定
+            if (piedGenotype.includes('P')) {
+                colorName += '・パイド';
             }
             
             return colorName;
         }
 
-        // 子の遺伝子型作成（Z座対応・順序修正）
-        function makeChildGenotype(B, M, Y, W, A, Z, E, P) {
+        // 子の毛色遺伝子型作成（12文字）
+        function makeChildGenotype(B, M, Y, W, A, Z) {
             const sortAlleles = (alleles) => {
                 return alleles.sort((a, b) => {
                     if (a === b) return 0;
@@ -1120,28 +1144,33 @@
                 });
             };
 
-            // 正しい順序でソート：B→M→Y→W→A→Z→E→P
             const bSorted = sortAlleles([...B]);
             const mSorted = sortAlleles([...M]);
             const ySorted = sortAlleles([...Y]);
             const wSorted = sortAlleles([...W]);
             const aSorted = sortAlleles([...A]);
             const zSorted = sortAlleles([...Z]);
-            const eSorted = sortAlleles([...E]);
-            const pSorted = sortAlleles([...P]);
 
-            // 正しい順序で結合：BBMMYYWWAAZZ + EE + PP
             return bSorted.join('') + mSorted.join('') + ySorted.join('') + 
-                   wSorted.join('') + aSorted.join('') + zSorted.join('') +
-                   eSorted.join('') + pSorted.join('');
+                   wSorted.join('') + aSorted.join('') + zSorted.join('');
         }
 
-        // 遺伝子型解析（Z座対応・--記号対応）
+        // 子の目の色遺伝子型作成
+        function makeChildEyeGenotype(E) {
+            const eSorted = E.sort((a, b) => a === a.toUpperCase() ? -1 : 1);
+            return eSorted.join('');
+        }
+
+        // 子のパイド遺伝子型作成
+        function makeChildPiedGenotype(P) {
+            const pSorted = P.sort((a, b) => a === a.toUpperCase() ? -1 : 1);
+            return pSorted.join('');
+        }
+
+        // 遺伝子型解析
         function parseGenotype(genotype) {
             const cleanGenotype = genotype.replace(/\s+/g, '');
             const genes = { B: [], M: [], Y: [], W: [], A: [], Z: [] };
-            
-            console.log('Parsing genotype:', cleanGenotype); // デバッグ用
             
             // 12文字の遺伝子型を解析
             const bPart = cleanGenotype.substring(0, 2);
@@ -1175,9 +1204,6 @@
             else if (zPart === 'Zz') genes.Z = ['Z', 'z'];
             else if (zPart === 'zz') genes.Z = ['z', 'z'];
 
-            // 解析結果を確認
-            console.log('Parsed genes:', genes);
-            
             // すべての遺伝子座が正しく解析されているかチェック
             const allParsed = Object.values(genes).every(arr => arr.length === 2);
             if (!allParsed) {
@@ -1188,7 +1214,7 @@
             return genes;
         }
 
-        // 逆引き検索（プログレッシブ処理版）
+        // 逆引き検索（改良版・軽量化）
         function reverseSearch() {
             const targetColor = document.getElementById('target-color').value;
             
@@ -1197,7 +1223,7 @@
                 return;
             }
 
-            // 結果表示エリアを初期化して進行状況を表示
+            // 結果表示エリアを初期化
             const resultsDiv = document.getElementById('reverse-results');
             resultsDiv.innerHTML = `
                 <div class="results">
@@ -1208,20 +1234,18 @@
 
             const combinations = [];
             let currentIndex = 0;
-            const colorPairs = [];
             
-            // 手に入りやすい毛色リスト
+            // 手に入りやすい毛色リスト（優先検索用）
             const easyToGetColors = [
                 'ノーマル', 'パール', 'ブルーサファイア', 'プディング', 
                 'クリーミーライン', 'サファイアプディング（ミルクティー）', 
                 'クリーミーラインサファイア', 'モカブラウン'
             ];
             
-            // 手に入りやすい毛色を優先的に配置
+            // 検索対象のペアを事前に作成（優先度別に分類）
             const prioritizedPairs = [];
             const otherPairs = [];
             
-            // 検索対象のペアを事前に作成（優先度別に分類）
             confirmedColors.forEach(colorA => {
                 confirmedColors.forEach(colorB => {
                     if (colorToGenotypes[colorA] && colorToGenotypes[colorB]) {
@@ -1245,65 +1269,71 @@
             
             // 優先ペアを先に、その他を後に配置
             const allPairs = [...prioritizedPairs, ...otherPairs];
-            console.log(`Search plan: ${prioritizedPairs.length} priority pairs, ${otherPairs.length} other pairs`);
+            console.log(`Reverse search plan: ${prioritizedPairs.length} priority pairs, ${otherPairs.length} other pairs`);
 
-            // プログレッシブ処理関数（早期終了対応）
+            // プログレッシブ処理関数（軽量化版）
             function processNextBatch() {
-                const batchSize = 20; // 一度に処理する組み合わせ数
+                const batchSize = 15; // 一度に処理する組み合わせ数を減らす
                 const endIndex = Math.min(currentIndex + batchSize, allPairs.length);
                 
                 for (let i = currentIndex; i < endIndex; i++) {
                     const [colorA, colorB] = allPairs[i];
                     
                     try {
-                        // 代表的な遺伝子型を選択（逆引き用：複数対応）
+                        // 代表的な遺伝子型を選択（1つずつに限定して軽量化）
                         const representativesA = selectRepresentativeGenotypes(colorA);
                         const representativesB = selectRepresentativeGenotypes(colorB);
                         
-                        // 各組み合わせをチェック
-                        let foundTarget = false;
-                        representativesA.forEach(genotypeA => {
-                            representativesB.forEach(genotypeB => {
-                                if (!foundTarget) {
+                        // 最も代表的な組み合わせのみをチェック（軽量化）
+                        const genotypeA = representativesA[0];
+                        const genotypeB = representativesB[0];
+                        
+                        if (genotypeA && genotypeB) {
+                            // 目の色の全パターンをチェック
+                            const eyePatterns = [
+                                ['EE', 'EE'], ['EE', 'Ee'], ['EE', 'ee'],
+                                ['Ee', 'Ee'], ['Ee', 'ee'], ['ee', 'ee']
+                            ];
+                            
+                            let foundMatch = false;
+                            
+                            eyePatterns.forEach(([eyeA, eyeB]) => {
+                                if (!foundMatch) {
                                     const results = calculateSimpleCross(
                                         genotypeA, 
                                         genotypeB, 
-                                        'ee', 'ee', 'pp', 'pp'
+                                        eyeA, eyeB, 'pp', 'pp'
                                     );
                                     
-                                    if (results[targetColor] && parseFloat(results[targetColor].percentage) > 0) {
-                                        combinations.push({
-                                            parentA: colorA,
-                                            parentB: colorB,
-                                            probability: results[targetColor].percentage
-                                        });
-                                        foundTarget = true; // 一度見つかったら他の組み合わせはスキップ
-                                    }
+                                    // 目標色が見つかったかチェック（部分一致も含む）
+                                    Object.keys(results).forEach(resultColor => {
+                                        if (resultColor.includes(targetColor) || targetColor.includes(resultColor.split('・')[0])) {
+                                            if (parseFloat(results[resultColor].percentage) > 0) {
+                                                combinations.push({
+                                                    parentA: colorA,
+                                                    parentB: colorB,
+                                                    eyeA: eyeA,
+                                                    eyeB: eyeB,
+                                                    probability: results[resultColor].percentage,
+                                                    resultColor: resultColor
+                                                });
+                                                foundMatch = true;
+                                            }
+                                        }
+                                    });
                                 }
                             });
-                        });
+                        }
                         
-                        // 手に入りやすい毛色の組み合わせが10件見つかったら早期終了
-                        // ただし、ノーマルとの組み合わせは最大3件まで制限
-                        const easyColorCombinations = combinations.filter(combo => 
-                            easyToGetColors.includes(combo.parentA) || easyToGetColors.includes(combo.parentB)
-                        );
-                        
-                        const normalCombinations = combinations.filter(combo =>
-                            combo.parentA === 'ノーマル' || combo.parentB === 'ノーマル'
-                        );
-                        
-                        // 早期終了条件：実用的な組み合わせ10件 かつ ノーマル組み合わせが3件以上ある場合はバランスチェック
-                        if (easyColorCombinations.length >= 10) {
-                            if (normalCombinations.length <= 3 || easyColorCombinations.length >= 15) {
-                                console.log(`Early termination: Found ${easyColorCombinations.length} easy-color combinations (${normalCombinations.length} with Normal)`);
-                                combinations.sort((a, b) => parseFloat(b.probability) - parseFloat(a.probability));
-                                displayReverseResults(targetColor, combinations.slice(0, 15));
-                                return;
-                            }
+                        // 早期終了条件：15件見つかったら終了
+                        if (combinations.length >= 15) {
+                            console.log(`Early termination: Found ${combinations.length} combinations`);
+                            combinations.sort((a, b) => parseFloat(b.probability) - parseFloat(a.probability));
+                            displayReverseResults(targetColor, combinations.slice(0, 15));
+                            return;
                         }
                     } catch (error) {
-                        console.log("Error with combination:", colorA, "x", colorB);
+                        console.log("Error with combination:", colorA, "x", colorB, error);
                     }
                 }
                 
@@ -1315,7 +1345,7 @@
                 resultsDiv.innerHTML = `
                     <div class="results">
                         <h4>🔍 検索中... ${progress}%</h4>
-                        <p>親の組み合わせを検索しています。</p>
+                        <p>親の組み合わせを検索しています。現在${combinations.length}件見つかりました。</p>
                     </div>
                 `;
                 
@@ -1330,7 +1360,7 @@
             }
             
             // 処理開始
-            setTimeout(processNextBatch, 10);
+            setTimeout(processNextBatch, 50);
         }
 
         // 結果表示
@@ -1354,18 +1384,12 @@
                 let className = 'result-item';
                 if (result.isLethal) className += ' lethal';
                 else if (result.isHealthRisk) className += ' health-risk';
-                else if (color.includes('※存在不明') || color.includes('（存在不明）')) {
-                    className += ' unknown-color';
-                }
                 
                 resultDiv.className = className;
                 
                 let statusText = '';
                 if (result.isLethal) statusText = '<div style="font-size: 0.9rem; color: #dc3545;">※ 致死遺伝子</div>';
                 else if (result.isHealthRisk) statusText = '<div style="font-size: 0.9rem; color: #856404;">※ 健康リスク</div>';
-                else if (color.includes('※存在不明') || color.includes('（存在不明）')) {
-                    statusText = '<div style="font-size: 0.9rem; color: #6f42c1;">※ 存在不明の毛色</div>';
-                }
                 
                 // 遺伝子型表示
                 let genotypeDisplay = '';
@@ -1387,14 +1411,15 @@
             });
         }
 
-        // 逆引き結果表示
+        // 逆引き結果表示（改良版）
         function displayReverseResults(targetColor, combinations) {
             const resultsDiv = document.getElementById('reverse-results');
             
             if (combinations.length === 0) {
                 resultsDiv.innerHTML = `
                     <div class="error-message">
-                        ${targetColor}の赤ちゃんが生まれる親の組み合わせが見つかりませんでした。
+                        ${targetColor}の赤ちゃんが生まれる親の組み合わせが見つかりませんでした。<br>
+                        <small>※目の色込みで検索している場合、親の目の色も考慮する必要があります</small>
                     </div>
                 `;
                 return;
@@ -1403,7 +1428,7 @@
             resultsDiv.innerHTML = `
                 <div class="results">
                     <h4>🐹 ${targetColor} の赤ちゃんが欲しい場合</h4>
-                    <p>→ 親の組み合わせ例（一部）：</p>
+                    <p>→ 親の組み合わせ例（${combinations.length}件見つかりました）：</p>
                 </div>
             `;
             
@@ -1413,9 +1438,19 @@
                 const comboDiv = document.createElement('div');
                 comboDiv.className = 'result-item';
                 
+                // 目の色情報も表示
+                const eyeInfo = combo.eyeA && combo.eyeB ? 
+                    `<div style="font-size: 0.85rem; color: #666;">親の目の色: ${combo.eyeA} × ${combo.eyeB}</div>` : '';
+                
+                // 実際の結果色が目標と異なる場合の表示
+                const resultInfo = combo.resultColor && combo.resultColor !== targetColor ?
+                    `<div style="font-size: 0.85rem; color: #888;">実際の結果: ${combo.resultColor}</div>` : '';
+                
                 comboDiv.innerHTML = `
                     <strong>${combo.parentA} × ${combo.parentB}</strong>
                     <div>出現確率: ${combo.probability}%</div>
+                    ${eyeInfo}
+                    ${resultInfo}
                 `;
                 
                 resultsContainer.appendChild(comboDiv);
