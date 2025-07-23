@@ -285,6 +285,56 @@
             margin: 10px 0;
         }
 
+        .share-buttons {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .share-button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .share-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .share-twitter {
+            background: linear-gradient(135deg, #000000 0%, #333333 100%);
+        }
+
+        .share-line {
+            background: linear-gradient(135deg, #00C300 0%, #00a000 100%);
+        }
+
+        .share-copy {
+            background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+        }
+
+        .share-result {
+            background: linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%);
+            border: 2px solid #c3e6cb;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 10px;
@@ -301,12 +351,34 @@
             .grid {
                 grid-template-columns: 1fr;
             }
+
+            .share-buttons {
+                justify-content: center;
+            }
+
+            .share-button {
+                font-size: 12px;
+                padding: 6px 12px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🐹 ジャンガリアンハムスター毛色シミュレーター</h1>
+        
+        <!-- SNSシェアボタン（メイン） -->
+        <div class="share-buttons">
+            <button class="share-button share-twitter" onclick="shareToTwitter()">
+                📱 X でシェア
+            </button>
+            <button class="share-button share-line" onclick="shareToLine()">
+                💚 LINE でシェア
+            </button>
+            <button class="share-button share-copy" onclick="copyURL()">
+                📋 URLをコピー
+            </button>
+        </div>
         
         <div style="text-align: center; margin-bottom: 15px;">
             <a href="https://www.youtube.com/playlist?list=PLpF705pFAL33ddUEEe-n3f2RxAo5os__T" 
@@ -660,6 +732,128 @@
         let confirmedColors = [];
         let selectedGenotypeA = null;
         let selectedGenotypeB = null;
+        
+        // SNSシェア関連の変数
+        let lastBreedingResult = null;
+        let lastReverseResult = null;
+
+        // Xでシェア（旧Twitter）
+        function shareToTwitter() {
+            const url = encodeURIComponent(window.location.href);
+            const hashtags = encodeURIComponent('ジャンガリアンハムスター,ハムスター,毛色シミュレーター,はむチラ長屋');
+            
+            let text = 'ジャンガリアンハムスター毛色シミュレーターを使ってみました！🐹';
+            
+            // 最新の結果があれば追加
+            if (lastBreedingResult) {
+                text += '\n\n' + formatResultForShare(lastBreedingResult);
+            } else if (lastReverseResult) {
+                text += '\n\n' + lastReverseResult;
+            }
+            
+            const encodedText = encodeURIComponent(text);
+            const twitterUrl = `https://twitter.com/intent/tweet?text=${encodedText}&url=${url}&hashtags=${hashtags}`;
+            
+            window.open(twitterUrl, '_blank', 'width=600,height=400');
+        }
+
+        // LINEでシェア
+        function shareToLine() {
+            const url = encodeURIComponent(window.location.href);
+            
+            let text = 'ジャンガリアンハムスター毛色シミュレーターを使ってみました！🐹';
+            
+            // 最新の結果があれば追加
+            if (lastBreedingResult) {
+                text += '\n\n' + formatResultForShare(lastBreedingResult);
+            } else if (lastReverseResult) {
+                text += '\n\n' + lastReverseResult;
+            }
+            
+            text += '\n\n' + decodeURIComponent(url);
+            
+            const encodedText = encodeURIComponent(text);
+            const lineUrl = `https://line.me/R/msg/text/?${encodedText}`;
+            
+            window.open(lineUrl, '_blank');
+        }
+
+        // URLをコピー
+        function copyURL() {
+            const url = window.location.href;
+            
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(url).then(() => {
+                    showShareMessage('URLをクリップボードにコピーしました！');
+                }).catch(() => {
+                    fallbackCopyURL(url);
+                });
+            } else {
+                fallbackCopyURL(url);
+            }
+        }
+
+        // フォールバック用のコピー機能
+        function fallbackCopyURL(url) {
+            const textArea = document.createElement('textarea');
+            textArea.value = url;
+            textArea.style.position = 'fixed';
+            textArea.style.opacity = '0';
+            document.body.appendChild(textArea);
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                showShareMessage('URLをクリップボードにコピーしました！');
+            } catch (err) {
+                showShareMessage('URLのコピーに失敗しました。手動でコピーしてください。');
+            }
+            
+            document.body.removeChild(textArea);
+        }
+
+        // シェア用の結果フォーマット
+        function formatResultForShare(results) {
+            const topResults = Object.keys(results)
+                .filter(color => color !== '致死')
+                .sort((a, b) => parseFloat(results[b].percentage) - parseFloat(results[a].percentage))
+                .slice(0, 3);
+            
+            if (topResults.length === 0) return '';
+            
+            let shareText = '交配結果：\n';
+            topResults.forEach(color => {
+                shareText += `・${color}: ${results[color].percentage}%\n`;
+            });
+            
+            return shareText.trim();
+        }
+
+        // シェア結果メッセージ表示
+        function showShareMessage(message) {
+            // 既存のメッセージがあれば削除
+            const existingMessage = document.querySelector('.share-result');
+            if (existingMessage) {
+                existingMessage.remove();
+            }
+            
+            // 新しいメッセージを作成
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'share-result';
+            messageDiv.textContent = message;
+            
+            // アクティブなタブの上部に挿入
+            const activeTab = document.querySelector('.tab-content.active');
+            const firstSection = activeTab.querySelector('.section');
+            activeTab.insertBefore(messageDiv, firstSection);
+            
+            // 3秒後に自動削除
+            setTimeout(() => {
+                if (messageDiv.parentNode) {
+                    messageDiv.remove();
+                }
+            }, 3000);
+        }
 
         // E座とM座による目の色決定関数（修正版）
         function determineEyeColor(eGenotype, mGenotype) {
@@ -912,6 +1106,10 @@
             }
 
             displayBreedingResults(results);
+            
+            // シェア用に結果を保存
+            lastBreedingResult = results;
+            lastReverseResult = null;
         }
 
         // 代表的な遺伝子型を選択
@@ -1329,6 +1527,14 @@
                         if (combinations.length >= 15) {
                             console.log(`Early termination: Found ${combinations.length} combinations`);
                             combinations.sort((a, b) => parseFloat(b.probability) - parseFloat(a.probability));
+                            
+                            // シェア用に結果を保存
+                            const topCombination = combinations[0];
+                            if (topCombination) {
+                                lastReverseResult = `${targetColor}の赤ちゃんが欲しい場合：\n${topCombination.parentA} × ${topCombination.parentB} (${topCombination.probability}%)`;
+                            }
+                            lastBreedingResult = null;
+                            
                             displayReverseResults(targetColor, combinations.slice(0, 15));
                             return;
                         }
@@ -1355,6 +1561,14 @@
                 } else {
                     // 処理完了：全組み合わせを検索してから結果表示
                     combinations.sort((a, b) => parseFloat(b.probability) - parseFloat(a.probability));
+                    
+                    // シェア用に結果を保存
+                    const topCombination = combinations[0];
+                    if (topCombination) {
+                        lastReverseResult = `${targetColor}の赤ちゃんが欲しい場合：\n${topCombination.parentA} × ${topCombination.parentB} (${topCombination.probability}%)`;
+                    }
+                    lastBreedingResult = null;
+                    
                     displayReverseResults(targetColor, combinations.slice(0, 15));
                 }
             }
@@ -1409,6 +1623,23 @@
                 
                 resultsContainer.appendChild(resultDiv);
             });
+            
+            // シェアボタンを結果の下に追加
+            const shareButtonsDiv = document.createElement('div');
+            shareButtonsDiv.innerHTML = `
+                <div class="share-buttons" style="margin-top: 20px;">
+                    <button class="share-button share-twitter" onclick="shareToTwitter()">
+                        📱 この結果をXでシェア
+                    </button>
+                    <button class="share-button share-line" onclick="shareToLine()">
+                        💚 この結果をLINEでシェア
+                    </button>
+                    <button class="share-button share-copy" onclick="copyURL()">
+                        📋 URLをコピー
+                    </button>
+                </div>
+            `;
+            resultsContainer.appendChild(shareButtonsDiv);
         }
 
         // 逆引き結果表示（改良版）
@@ -1455,6 +1686,23 @@
                 
                 resultsContainer.appendChild(comboDiv);
             });
+            
+            // シェアボタンを結果の下に追加
+            const shareButtonsDiv = document.createElement('div');
+            shareButtonsDiv.innerHTML = `
+                <div class="share-buttons" style="margin-top: 20px;">
+                    <button class="share-button share-twitter" onclick="shareToTwitter()">
+                        𝕏 この結果をXでシェア
+                    </button>
+                    <button class="share-button share-line" onclick="shareToLine()">
+                        💚 この結果をLINEでシェア
+                    </button>
+                    <button class="share-button share-copy" onclick="copyURL()">
+                        📋 URLをコピー
+                    </button>
+                </div>
+            `;
+            resultsContainer.appendChild(shareButtonsDiv);
         }
 
         // エラーメッセージ表示
